@@ -1,0 +1,11 @@
+<JavaCardSolution name="CCCD">
+    <JavaCardProjects>
+        <JavaCardProject path="CCCD.jcproj" />
+    </JavaCardProjects>
+    <Build>
+        <BuildDependon />
+    </Build>
+    <Platform>
+        <ChipPack Name="JAVACOS" />
+    </Platform>
+</JavaCardSolution>
