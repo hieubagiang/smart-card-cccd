@@ -29,6 +29,7 @@ public class User {
     private long amount;
 
     public User() {
+        
     }
 
     public User(String cardId, 

@@ -2,7 +2,6 @@
 <ExpandNodes>
 <PkgNodes>
 <Node>CCCD</Node>
-<Node>Scard</Node>
 </PkgNodes>
 </ExpandNodes>
 <FileNodes>
@@ -10,13 +9,9 @@
 <fileName>C:\workspace\toang\src\toanh\AESUltils.java</fileName>
 <line>111</line>
 </fnode>
-<fnode>
-<fileName>C:\workspace\toang\src\toanh\MyJavaCardApplet.java</fileName>
-<line>383</line>
-</fnode>
 <ActiveFile>
 <fileName>src\CCCD\CCCD.java</fileName>
-<line>16</line>
+<line>307</line>
 </ActiveFile>
 </FileNodes>
 </StateInfo>
