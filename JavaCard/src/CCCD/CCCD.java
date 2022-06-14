@@ -22,10 +22,6 @@ public class CCCD extends Applet implements ExtendedLength{
     private static final byte REGIST_CARD = (byte) 0x50;
     private static final byte UNBLOCK = (byte) 0x60;
     private static final byte CHANGE_PASS = (byte) 0x70;
-    private static final byte GEN_RSA_KEY = (byte) 0xD3;
-    private static final byte SIGN_RSA = (byte) 0xD0;
-    private static final byte EXPORT_RSA_EXPONENT_KEY = (byte) 0xF2;
-    private static final byte EXPORT_RSA_MODULUS_KEY = (byte) 0xF0;
     private static final byte INS_get = (byte) 0x14;
     private static final short MAX_LEN_OUT_GOING = 200;
 
@@ -213,6 +209,7 @@ public class CCCD extends Applet implements ExtendedLength{
         // at the offset ISO7816.OFFSET_CDATA
         // the PIN data length = byteRead
         if (initPin.check(buffer, ISO7816.OFFSET_CDATA, byteRead) == false) {
+
             ISOException.throwIt(SW_VERIFICATION_FAILED);
         }
     } // end of validate method
@@ -247,3 +244,4 @@ public class CCCD extends Applet implements ExtendedLength{
         apdu.sendBytesLong(encryptedData, (short)0, toSend);
     }
 }
+ 
