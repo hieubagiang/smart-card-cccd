@@ -8,31 +8,31 @@ import java.util.Date;
  *
  * @author phamb
  */
-public class User {
-    private String cardId;
-    private String pin;
-    
-    private String avatarImage;
-    private String fingerPrintImage;
-    
-    private String fullName;
-    private String address;
-    private byte sex;
-    private String region;
-    private String national;
-    private String birthday;
-    
-    private String expiredDate;
-    private String releaseDate;
-    
-    private String note;
-    private long amount;
+public class UserModel {
+        private String cardId;
+        private String pin;
 
-    public User() {
+        private String avatarImage;
+        private String fingerPrintImage;
+
+        private String fullName;
+        private String address;
+        private byte sex;
+        private String region;
+        private String national;
+        private String birthday;
+
+        private String expiredDate;
+        private String releaseDate;
+
+        private String note;
+        private long amount;
+
+    public UserModel() {
         
     }
 
-    public User(String cardId, 
+    public UserModel(String cardId, 
             String pin, String avatarImage, String fingerPrintImage, 
             String fullName, String address, byte sex, String region, 
             String national, String birthday, String expiredDate, 

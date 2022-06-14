@@ -10,7 +10,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.*;
-public class Helper {
+public class FunctionUtils {
     private static final char[] HEX_ARRAY = "0123456789ABCDEF".toCharArray();
     // function to generate a random string of length n
     static String getAlphaNumericString(int n) {

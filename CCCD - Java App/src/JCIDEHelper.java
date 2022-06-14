@@ -15,7 +15,7 @@ import javax.smartcardio.TerminalFactory;
  *
  * @author Tung
  */
-public class Connect_JCIDE {
+public class JCIDEHelper {
     
     private Card card;
     private TerminalFactory factory;
@@ -24,7 +24,7 @@ public class Connect_JCIDE {
     private List<CardTerminal> terminals;
     private ResponseAPDU response;
     
-    public Connect_JCIDE(){
+    public JCIDEHelper(){
     }
 
     

@@ -34,10 +34,10 @@ import java.io.File;
  *
  * @author mallik
  */
-public class GUIGeldAutomat extends javax.swing.JFrame {
+public class App extends javax.swing.JFrame {
 
     //private JavaCardHostApp host;
-    private Connect_JCIDE host;
+    private JCIDEHelper host;
     private JFrame frame;
     static int counter;
     final static byte Wallet_CLA = (byte) 0xB0;
@@ -48,32 +48,26 @@ public class GUIGeldAutomat extends javax.swing.JFrame {
     final static byte UNBLOCK = (byte) 0x60;
     final static byte CHANGE_PASS = (byte) 0x70;
     final static byte INS_GET_CARD_DATA = (byte) 0x13;
-    final static byte SIGN_RSA_REQUEST = (byte) 0xD0;
-    final static byte GEN_RSA_KEY_REQUEST = (byte) 0xD3;
-    final static byte GET_RSA_EXPONENT_REQUEST = (byte) 0xF2;
-    final static byte GET_RSA_MODULUS_REQUEST = (byte) 0xF0;
     
-    private ArrayList<User> users = new ArrayList<User>();
-    private User user = new User("MB102321908", "1234", "images1.jpg", "images2.jpg", 
-            "Nguyen Van A", "Thanh Xuan Ha Noi", (byte) 1, "Ha Noi", " Viet Nam", 
-            "01/01/2001", null, null, "", 100000);
+    private ArrayList<UserModel> users = new ArrayList<UserModel>();
+    private UserModel user = new UserModel("MB102321908", "1234", "images.jpg", "images.jpg", 
+            "Pham Doan Hieu", "Thanh Xuan Ha Noi", (byte) 1, "Ha Noi", " Viet Nam", 
+            "05/04/2000", null, null, "", 0);
     
-    private User tempUser = user;
+    private UserModel tempUser = user;
     private String pathFileImageAvatar = "";
     private String pathFileImageFingerPrint = "";
     private boolean isConnected = false;
-    private RSAPublicKey rsaPublicKey;
-    private byte[] rsaExponent, rsaModulus;
     private final byte[] emptyData = {(byte)0x00};
     /**
      * Creates new form GUIGeldAutomat
      */
-    public GUIGeldAutomat() {
+    public App() {
         initComponents();
         counter = 3;
         //host = new JavaCardHostApp();
         
-        host = new Connect_JCIDE();
+        host = new JCIDEHelper();
 
         pnlMain.setVisible(false);
         pnlThongTin.setVisible(false);
@@ -418,15 +412,15 @@ public class GUIGeldAutomat extends javax.swing.JFrame {
         pnlVerifiedPinLayout.setVerticalGroup(
             pnlVerifiedPinLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(pnlVerifiedPinLayout.createSequentialGroup()
-                .addContainerGap(59, Short.MAX_VALUE)
+                .addContainerGap(71, Short.MAX_VALUE)
                 .addGroup(pnlVerifiedPinLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(txtPassword, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(lblPin))
-                .addGap(30, 30, 30)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(pnlVerifiedPinLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btnLogIn)
                     .addComponent(btnRegisterCard))
-                .addContainerGap(67, Short.MAX_VALUE))
+                .addContainerGap(79, Short.MAX_VALUE))
         );
 
         pnlVerifiedPinLayout.linkSize(javax.swing.SwingConstants.VERTICAL, new java.awt.Component[] {btnLogIn, btnRegisterCard});
@@ -806,7 +800,7 @@ public class GUIGeldAutomat extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnLogInActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLogInActionPerformed
-        boolean verifyCardResult = verifyCard();
+        boolean verifyCardResult = true; //Mock Verify card
         
         if (!verifyCardResult) {
             JOptionPane.showMessageDialog(null,
@@ -914,8 +908,7 @@ public class GUIGeldAutomat extends javax.swing.JFrame {
     private void btnRegisterCardActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRegisterCardActionPerformed
         // TODO add your handling code here:
         if(isConnected){
-            try {
-                User newUser = new User();
+                UserModel newUser = new UserModel();
                 
                 Date newReleaseDate = new Date();
                 Date newExpiredDate = new Date();
@@ -943,12 +936,6 @@ public class GUIGeldAutomat extends javax.swing.JFrame {
                         "Thẻ đã được đăng ký mới với mật khẩu là 1234, xin hãy đăng nhập để sửa lại thông tin",
                         "Thông báo",
                         JOptionPane.INFORMATION_MESSAGE);
-                initVerifyCard();
-            } catch (NoSuchAlgorithmException | InvalidKeySpecException ex) {
-                Logger.getLogger(GUIGeldAutomat.class.getName()).log(Level.SEVERE, null, ex);
-            } catch (IOException ex) {
-                Logger.getLogger(GUIGeldAutomat.class.getName()).log(Level.SEVERE, null, ex);
-            }
         }else{
              JOptionPane.showMessageDialog(null,
                     "Xin hãy kết nối với thẻ",
@@ -1026,9 +1013,9 @@ public class GUIGeldAutomat extends javax.swing.JFrame {
                         JOptionPane.INFORMATION_MESSAGE);
             }else{
                 System.out.println("curent pin:");
-                System.out.println(Helper.bytesToHexString(txtCurrentPin.getText().getBytes()));
+                System.out.println(FunctionUtils.bytesToHexString(txtCurrentPin.getText().getBytes()));
                 System.out.println("new pin:");
-                System.out.println(Helper.bytesToHexString(txtNewPin.getText().getBytes()));
+                System.out.println(FunctionUtils.bytesToHexString(txtNewPin.getText().getBytes()));
 //                tempUser.setPin(txtNewPin.getText());
 
 //                       sendAndReceiveDataOnCard(tempUser.toString().getBytes(), REGIST_CARD);
@@ -1120,7 +1107,7 @@ public class GUIGeldAutomat extends javax.swing.JFrame {
 
     private void btnLogOutActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLogOutActionPerformed
         // TODO add your handling code here:
-        tempUser = new User();
+        tempUser = new UserModel();
         hideAndShowPnl(pnlVerifiedPin);
     }//GEN-LAST:event_btnLogOutActionPerformed
 
@@ -1142,18 +1129,18 @@ public class GUIGeldAutomat extends javax.swing.JFrame {
     }
 
     public void setTheCommandAPDUOnGUI(byte[] cmnds, byte[] data, int lc, int le) {
-        txtCLA.setText(String.valueOf(byteToHex(cmnds[0])));
-        txtINS.setText(String.valueOf(byteToHex(cmnds[1])));
-        txtP1.setText(String.valueOf(byteToHex(cmnds[2])));
-        txtP2.setText(String.valueOf(byteToHex(cmnds[3])));
         txtLc.setText(Integer.toHexString(lc));
         txtLe.setText(null);//Le
         txtCommand.setText(byteArrayToHexString(data,true)); 
-    }
+         txtCLA.setText(String.valueOf(byteToHex(cmnds[0])));
+        txtINS.setText(String.valueOf(byteToHex(cmnds[1])));
+        txtP1.setText(String.valueOf(byteToHex(cmnds[2])));
+        txtP2.setText(String.valueOf(byteToHex(cmnds[3])));
+   }
 
 
     
-    private void writeDataToCard(User user, byte comandCode) {
+    private void writeDataToCard(UserModel user, byte comandCode) {
         String dataUser = user.toString();
         
         writeDataToCard(dataUser, comandCode);
@@ -1192,6 +1179,7 @@ public class GUIGeldAutomat extends javax.swing.JFrame {
     }
     
     private String browseImageFile (){
+        
         JFileChooser browseImageFile = new JFileChooser();
         
         FileNameExtensionFilter fnef = new FileNameExtensionFilter("IMAGES", "png", "jpg", "jpeg");
@@ -1263,7 +1251,7 @@ public class GUIGeldAutomat extends javax.swing.JFrame {
         
         String cardId = splitString[0];
      
-        for(User user : users){
+        for(UserModel user : users){
             if(user.getCardId().equals(cardId)){
                 tempUser = user;
                 break;
@@ -1271,13 +1259,13 @@ public class GUIGeldAutomat extends javax.swing.JFrame {
         }
         
         if ( (tempUser.getAvatarImage() == null || tempUser.getAvatarImage() == "")
-                && strImageToFile(splitString[2], "C:\\Users\\Admin\\avatar.jpg")) {
-            tempUser.setAvatarImage("C:\\Users\\Admin\\avatar.jpg");
+                && strImageToFile(splitString[2], "images/avatar.jpg")) {
+            tempUser.setAvatarImage("images/avatar.jpg");
         }
         
         if ((tempUser.getFingerPrintImage() == null|| tempUser.getFingerPrintImage() == "") 
-                && strImageToFile(splitString[3], "C:\\Users\\Admin\\finger.jpg")) {
-            tempUser.setFingerPrintImage("C:\\Users\\Admin\\finger.jpg");
+                && strImageToFile(splitString[3], "images/avatar.jpg")) {
+            tempUser.setFingerPrintImage("images/avatar.jpg");
         }
     }
     
@@ -1381,96 +1369,7 @@ public class GUIGeldAutomat extends javax.swing.JFrame {
         }
         return null;
     }
-    
-    // init RSA key function and generate code, verify function  
-        private void initVerifyCard () throws NoSuchAlgorithmException, InvalidKeySpecException, IOException {
-        byte[] emptyData = {(byte)0x00};
-        sendAndReceiveDataOnCard(emptyData, GEN_RSA_KEY_REQUEST);
-        rsaExponent = sendAndReceiveDataOnCard(emptyData, GET_RSA_EXPONENT_REQUEST);
-        rsaModulus = sendAndReceiveDataOnCard(emptyData, GET_RSA_MODULUS_REQUEST);
-        RSAPublicKeySpec keySpec;
-        keySpec = new RSAPublicKeySpec(new BigInteger(1,rsaModulus), new BigInteger(1,rsaExponent));
-        KeyFactory keyFactory = KeyFactory.getInstance("RSA");
-//        rsaPublicKey = (RSAPublicKey) keyFactory.generatePublic(keySpec);
-        
-        Helper.writeBytesToFile("exponent.rsa",rsaExponent);
-        Helper.writeBytesToFile("modulus.rsa",rsaModulus);
-    }
-    
-    private boolean verifyCard ()  {
-        return true;
-        File rsaExponentFile, rsaModulusFile;
-        rsaExponentFile = new File("exponent.rsa");
-        rsaModulusFile = new File("modulus.rsa");
-        if(rsaExponentFile.exists() && rsaModulusFile.exists() && !rsaExponentFile.isDirectory() && !rsaModulusFile.isDirectory()) { 
-            try {
-                rsaExponent = Helper.readBytesFromFile("exponent.rsa");
-                rsaModulus = Helper.readBytesFromFile("modulus.rsa");
-                RSAPublicKeySpec keySpec;
-                keySpec = new RSAPublicKeySpec(new BigInteger(1,rsaModulus), new BigInteger(1,rsaExponent));
-                KeyFactory keyFactory;
-                try {
-                    keyFactory = KeyFactory.getInstance("RSA");
-                } catch (NoSuchAlgorithmException ex) {
-                    Logger.getLogger(GUIGeldAutomat.class.getName()).log(Level.SEVERE, null, ex);
-                    return false;
-                }
-                try {
-                    rsaPublicKey = (RSAPublicKey) keyFactory.generatePublic(keySpec);
-                } catch (InvalidKeySpecException ex) {
-                    Logger.getLogger(GUIGeldAutomat.class.getName()).log(Level.SEVERE, null, ex);
-                    return false;
-                }
-            } catch (IOException ex) {
-                Logger.getLogger(GUIGeldAutomat.class.getName()).log(Level.SEVERE, null, ex);
-                return false;
-            }
-        } else {
-            return false;
-        }
-        byte[] hashCode = null;
-        String randomCode = Helper.getAlphaNumericString(8);
-        String plainText = randomCode;
-        System.out.println("plainText: "+plainText);
-        hashCode = plainText.getBytes();
-        try {
-            hashCode = Helper.getSHA256(plainText);
-        } catch (NoSuchAlgorithmException ex) {
-            Logger.getLogger(GUIGeldAutomat.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        byte[] rsaSignedData  = sendAndReceiveDataOnCard(hashCode, SIGN_RSA_REQUEST);
-        Signature sig;
-        try {
-            sig = Signature.getInstance("SHA256withRSA");
-        } catch (NoSuchAlgorithmException ex) {
-            Logger.getLogger(GUIGeldAutomat.class.getName()).log(Level.SEVERE, null, ex);
-            return false;
-        }
-        try {
-            sig.initVerify(rsaPublicKey);
-        } catch (InvalidKeyException ex) {
-            Logger.getLogger(GUIGeldAutomat.class.getName()).log(Level.SEVERE, null, ex);
-            return false;
-        }
-        try {
-            sig.update(hashCode);
-        } catch (SignatureException ex) {
-            Logger.getLogger(GUIGeldAutomat.class.getName()).log(Level.SEVERE, null, ex);
-            return false;
-        }
-        boolean verifies;
-        try {
-            verifies = sig.verify(rsaSignedData);
-        } catch (SignatureException ex) {
-            Logger.getLogger(GUIGeldAutomat.class.getName()).log(Level.SEVERE, null, ex);
-            return false;
-        }
-        System.out.println("Verified card: "+verifies);
-        
-        return verifies;
-
-    }
-    
+       
     /**
      * @param args the javaCard line arguments
      */
@@ -1488,20 +1387,21 @@ public class GUIGeldAutomat extends javax.swing.JFrame {
                 }
             }
         } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(GUIGeldAutomat.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(App.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(GUIGeldAutomat.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(App.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(GUIGeldAutomat.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(App.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(GUIGeldAutomat.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(App.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
+        //</editor-fold>
         //</editor-fold>
 
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new GUIGeldAutomat().setVisible(true);
+                new App().setVisible(true);
             }
         });
     }
