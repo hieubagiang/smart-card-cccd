@@ -412,7 +412,7 @@ public class App extends javax.swing.JFrame {
         pnlVerifiedPinLayout.setVerticalGroup(
             pnlVerifiedPinLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(pnlVerifiedPinLayout.createSequentialGroup()
-                .addContainerGap(71, Short.MAX_VALUE)
+                .addContainerGap(93, Short.MAX_VALUE)
                 .addGroup(pnlVerifiedPinLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(txtPassword, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(lblPin))
@@ -420,7 +420,7 @@ public class App extends javax.swing.JFrame {
                 .addGroup(pnlVerifiedPinLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btnLogIn)
                     .addComponent(btnRegisterCard))
-                .addContainerGap(79, Short.MAX_VALUE))
+                .addContainerGap(57, Short.MAX_VALUE))
         );
 
         pnlVerifiedPinLayout.linkSize(javax.swing.SwingConstants.VERTICAL, new java.awt.Component[] {btnLogIn, btnRegisterCard});
@@ -987,7 +987,7 @@ public class App extends javax.swing.JFrame {
         
         if (pathFileImageFingerPrint != "")
             tempUser.setFingerPrintImage(getImageStr(pathFileImageFingerPrint));
-        
+
         writeDataToCard(tempUser, REGIST_CARD);
 
         JOptionPane.showMessageDialog(null,
@@ -1142,7 +1142,7 @@ public class App extends javax.swing.JFrame {
     
     private void writeDataToCard(UserModel user, byte comandCode) {
         String dataUser = user.toString();
-        
+        System.out.println(dataUser);
         writeDataToCard(dataUser, comandCode);
     }
     
@@ -1154,8 +1154,10 @@ public class App extends javax.swing.JFrame {
             byte[] dataBytes = data.getBytes();
             
             setTheCommandAPDUOnGUI(cmd, dataBytes, dataBytes.length, 0); //hien thi apdu cmd len GUI
+            System.out.println("dataBytes.length = "+ dataBytes.length);
             host.sendApdu(cmd,dataBytes);
             String sw = Integer.toHexString(host.getStatusWord());
+            
             setTheResponseAPDUOnGUI(sw);
         } catch (Exception e) {
             e.printStackTrace();

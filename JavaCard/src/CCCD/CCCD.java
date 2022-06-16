@@ -217,23 +217,24 @@ public class CCCD extends Applet implements ExtendedLength{
     private void initCard(APDU apdu) {
         byte[] buffer = apdu.getBuffer();
 
-        short recvLen = apdu.setIncomingAndReceive();
-        short dataLen = (short)(buffer[ISO7816.OFFSET_LC]&0xff);//apdu.getIncomingLength();
+        short recvLen = apdu.setIncomingAndReceive(); // mot lan doc
+        short dataLen = apdu.getIncomingLength();//(short)(buffer[ISO7816.OFFSET_LC]&0xff); toan bo
         short dataOffset = apdu.getOffsetCdata();
 
         encryptedData = new byte[dataLen];
         
-        Util.arrayCopyNonAtomic(buffer, ISO7816.OFFSET_CDATA, encryptedData, (short)0, recvLen);
-
 		
-        short totalRead = recvLen;
-        while (totalRead < dataLen) {
-            recvLen = apdu.receiveBytes((short)0);
-            Util.arrayCopyNonAtomic(buffer, (short)0, encryptedData, totalRead, recvLen);
-            totalRead += recvLen;
+		
+        short pointer = 0;	
+        while (recvLen > 0) {
+            Util.arrayCopy(buffer, apdu.getOffsetCdata(), encryptedData, pointer, recvLen);
+            pointer += recvLen;
+            recvLen = apdu.receiveBytes(dataOffset);
         }
-        Util.arrayCopy(encryptedData, (short)0, buffer, (short)0, (short)encryptedData.length);
-		apdu.setOutgoingAndSend((short)0, (short)encryptedData.length);
+        // Util.arrayCopy(encryptedData, (short)0, buffer, (short)0, (short)encryptedData.length);
+		// apdu.setOutgoingAndSend((short)0, (short)encryptedData.length);
+		
+		
     }
 	
     private void getCardInfo(APDU apdu) {

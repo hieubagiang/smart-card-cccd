@@ -164,10 +164,10 @@ public class UserModel {
     public void setAmount(long amount) {
         this.amount = amount;
     }
-
+    public String test = "Calculate the length of your string of text or numbers to check the number of characters it contains! Using our online character counting tool is quick and easy! This tool is great for computer programmers, web developers, writers, and other programmerssss";
     @Override
     public String toString() {
-        return  cardId + "." + pin + "." + "." + "." + fullName + "." + address 
+        return  cardId + "." + pin + "." + test+"." + "." + fullName + "." + address 
                 + "." + sex + "." + region + "." + national + "." + birthday 
                 + "." + expiredDate + "." + releaseDate + "." + note + "." + amount;
     }
