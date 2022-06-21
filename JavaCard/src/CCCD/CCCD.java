@@ -64,6 +64,7 @@ public class CCCD extends Applet implements ExtendedLength{
  
     /* instance variables declaration */
     OwnerPIN initPin;
+    AESUltils _aesUtils;
     short balance;
     
     private static byte[] userData;
@@ -105,13 +106,14 @@ public class CCCD extends Applet implements ExtendedLength{
         // its lifetime inside the constructor
  
         initPin = new OwnerPIN(PIN_TRY_LIMIT, MAX_PIN_SIZE);
+       
 
         // The installation parameters contain the PIN
         // initializationvalue 
         byte[] pinArr = {1, 2, 3, 4};
         initPin.update(pinArr, (short) 0, (byte) pinArr.length);
         register();
-       
+		 _aesUtils = new AESUltils();
         JCSystem.requestObjectDeletion();
     }
 
@@ -231,6 +233,8 @@ public class CCCD extends Applet implements ExtendedLength{
             pointer += recvLen;
             recvLen = apdu.receiveBytes(dataOffset);
         }
+        encryptedData= _aesUtils.paddingArray(encryptedData, dataLen);
+		_aesUtils.doEncryptAesCipher(apdu, encryptedData);
         // Util.arrayCopy(encryptedData, (short)0, buffer, (short)0, (short)encryptedData.length);
 		// apdu.setOutgoingAndSend((short)0, (short)encryptedData.length);
 		

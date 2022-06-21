@@ -10,6 +10,7 @@ import javacard.security.CryptoException;
 import javacard.security.KeyBuilder;
 import javacardx.crypto.Cipher;
 
+
 /**
  *
  * @author Langl
@@ -82,15 +83,29 @@ public class AESUltils {
         JCSystem.commitTransaction();
     }
 
+// 223 / 16 = ? index 0 ??? m ? nhng length 
+    public byte[] paddingArray(byte[] arr, short len) {
+    	  short previousLen = (short) len;
+            if (len >= 0 && len % 16 != 0) {
+            	len += (16 - (len % 16));
+            	
+            }
+            byte[] newArr = new byte[len];
+            // cái này d dài copy = len - pre - 1 thôi 
+             Util.arrayCopyNonAtomic(arr,(short) 0,  newArr, (short) 0, previousLen);
+            // Util.arrayFillNonAtomic(arr, (short) previousLen, (short) (len-previousLen), (byte) 0);
+          return newArr;
+    }    
     
-    
-    public void doEncryptAesCipher(APDU apdu, byte[] arr, short len) {
+    public void doEncryptAesCipher(APDU apdu, byte[] arr) {
         try {
+        	short len = (short) arr.length;
             byte[] buffer = apdu.getBuffer();
             aesCipher = Cipher.getInstance(Cipher.ALG_AES_BLOCK_128_ECB_NOPAD, false);
             tempAesKey1 = (AESKey) KeyBuilder.buildKey(KeyBuilder.TYPE_AES, KeyBuilder.LENGTH_AES_128, false);
             if (len <= 0 || len % 16 != 0) {
                 ISOException.throwIt(ISO7816.SW_WRONG_LENGTH);
+               
             }
             tempAesKey1.setKey(aesKey, (short) 0);
 
@@ -104,6 +119,8 @@ public class AESUltils {
             ISOException.throwIt(reason);
         }
     }
+    
+    
     
     
     
