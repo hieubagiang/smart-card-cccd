@@ -22,6 +22,10 @@ public class CCCD extends Applet implements ExtendedLength{
     private static final byte REGIST_CARD = (byte) 0x50;
     private static final byte UNBLOCK = (byte) 0x60;
     private static final byte CHANGE_PASS = (byte) 0x70;
+    private static final byte GEN_RSA_KEY = (byte) 0xD3;
+    private static final byte SIGN_RSA = (byte) 0xD0;
+    private static final byte EXPORT_RSA_EXPONENT_KEY = (byte) 0xF2;
+    private static final byte EXPORT_RSA_MODULUS_KEY = (byte) 0xF0;
     private static final byte INS_get = (byte) 0x14;
     private static final short MAX_LEN_OUT_GOING = 200;
 
@@ -170,7 +174,23 @@ public class CCCD extends Applet implements ExtendedLength{
                 return;
             case CHANGE_PASS:
                 changePass(apdu);
-                return;  
+                return; 
+              case (byte)GEN_RSA_KEY:
+                // generate a new key
+                gen_rsa_key();
+                break;
+            case (byte)SIGN_RSA:
+                // sign a given incoming message
+                sign_message(apdu);
+                break;
+            case (byte)EXPORT_RSA_MODULUS_KEY:
+                // retrieve the modulus public key from the card
+                getPublicRSA(apdu, (short)0x00);
+                break;
+            case (byte)EXPORT_RSA_EXPONENT_KEY:
+                // retrieve the exponent public key from the card
+                getPublicRSA(apdu, (short)0x01);
+                break;      
             // case (byte)0x12:
                 // apdu.setIncomingAndReceive();
                 // Util.arrayCopy(pinArr, (short)0, buffer, (short)0, (short)pinArr.length);
@@ -180,6 +200,102 @@ public class CCCD extends Applet implements ExtendedLength{
                 ISOException.throwIt(ISO7816.SW_INS_NOT_SUPPORTED);
         }
     } // end of process method
+
+	 public void gen_rsa_key(){
+
+        rsaPair.genKeyPair();
+        rsaKeyPriv = (RSAPrivateCrtKey) rsaPair.getPrivate();
+        rsaKeyPub = (RSAPublicKey) rsaPair.getPublic();
+        return;
+    }
+
+    private void getPublicRSA(APDU apdu, short choose){
+
+        if (!rsaKeyPub.isInitialized())
+        {
+                ISOException.throwIt(ISO7816.SW_RECORD_NOT_FOUND);
+        }
+
+        byte[] buffer = apdu.getBuffer();
+        short length = 0;
+
+        switch ((short) choose)
+        {
+        case 0x00:
+                length = rsaKeyPub.getModulus(buffer, (short)0);
+                break;
+        case 0x01:
+                length = rsaKeyPub.getExponent(buffer, (short)0);
+                break;
+        default:
+
+                ISOException.throwIt(ISO7816.SW_INCORRECT_P1P2);
+        }
+        apdu.setOutgoingAndSend((short)0, length);
+        return;
+    }
+
+    public void sign_message(APDU apdu){
+        if (!rsaKeyPriv.isInitialized()){
+            // RSA key isn't initialised for some reason... this is not OK
+            ISOException.throwIt(ISO7816.SW_CONDITIONS_NOT_SATISFIED);
+        }
+        // prepare for signing
+        // signing being decryption using RSA (be careful here, ensure you understand PKCS#1.5 and don't sign "raw" data!)
+        cipherRSA.init(rsaPair.getPrivate(), Cipher.MODE_DECRYPT);
+        // get buffer access to APDU
+        byte[] buffer = apdu.getBuffer();
+        short bytesRead = apdu.setIncomingAndReceive();
+        // don't allow excessively long data to be signed, at least for now
+        if (bytesRead > 256)
+        {
+            ISOException.throwIt(ISO7816.SW_WRONG_LENGTH);
+        }
+        // fetch the message to be signed into a temporary buffer
+        Util.arrayCopyNonAtomic(buffer, ISO7816.OFFSET_CDATA, dataBuffer, (short)0, bytesRead);
+        // pkcs1_sha256() will hash the input message of upto 255 bytes, and return a PKCS#1.5 digest to be signed
+        pkcs1_sha256(dataBuffer, (short)0, bytesRead);
+        // this has sets the tempBuffer as the data to sign
+
+        // sign the contents of temporary buffer, send signature to APDU output buffer
+        cipherRSA.doFinal(tempBuffer, (short)0, (short)256, buffer, (short)0);
+        // clear the temp buffer
+        Util.arrayFillNonAtomic(tempBuffer, (short)0, (short)256, (byte)0x00);
+        // clear the data buffer
+        Util.arrayFillNonAtomic(dataBuffer, (short)0, (short)256, (byte)0x00);
+        // return the signature
+        apdu.setOutgoingAndSend((short)0, (short)256);
+        return;
+    }
+    
+    // this function will leave tempBuffer with the data to be signed
+    public void pkcs1_sha256(byte[] toSign, short bOffset, short bLength){
+        // clear the hasher
+        md.reset();
+
+        // clear the temp buffer
+        Util.arrayFillNonAtomic(tempBuffer, (short)0, (short)256, (byte)0x00);
+        // the format of a pkcs1#1.5 digest before signing is as follows:
+        // (note that this is pre-computed for a sha256 hash length)
+
+        // 2 bytes, 0x00, 0x01
+        // padding (202 bytes of 0xFF)
+        // byte 0x00
+        // hash-type prefix is 19 bytes
+        // hash is 32 bytes
+
+        // therefore the padding contains 256-32-19-3 = 202 bytes
+        tempBuffer[0] = (byte) 0x00;
+        tempBuffer[1] = (byte) 0x01;
+        // add in the padding
+        Util.arrayFillNonAtomic(tempBuffer, (short)2, (short)202, (byte)0xFF);
+        tempBuffer[204] = (byte) 0x00;
+        // copy the DER prefix
+        Util.arrayCopyNonAtomic(SHA256_PREFIX, (short)0, tempBuffer, (short)205, (short)SHA256_PREFIX.length);
+        // now add the actual hash
+        md.doFinal(toSign, bOffset, bLength, tempBuffer, (short)224);
+        // the value to sign is in tempBuffer
+    }
 
     
     private void changePass(APDU apdu){        
