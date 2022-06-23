@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="67fa5f19-ff98-4d08-9ae5-d7e112eaf03b" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/../LocalJChomeProperty.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../LocalJChomeProperty.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../bin/CCCD/AESUltils.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../bin/CCCD/Bus.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../bin/CCCD/CCCD.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../bin/CCCD/javacard/CCCD.cap" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../bin/CCCD/javacard/CCCD.exp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../bin/CCCD/javacard/CCCD.jca" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../debugConfig.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../debugConfig.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/CCCD/CCCD.java" beforeDir="false" afterPath="$PROJECT_DIR$/../src/CCCD/CCCD.java" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
+  </component>
+  <component name="ProjectId" id="2Ak1nwS3Ptl9Wrctkc3wKVCIZnT" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
+    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="dart.analysis.tool.window.visible" value="false" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="show.migrate.to.gradle.popup" value="false" />
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="67fa5f19-ff98-4d08-9ae5-d7e112eaf03b" name="Changes" comment="" />
+      <created>1655538939597</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1655538939597</updated>
+      <workItem from="1655538940980" duration="94000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+</project>

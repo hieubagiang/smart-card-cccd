@@ -1,5 +1,5 @@
 // converted by version 1.3
-// on Wed Jun 22 01:44:15 ICT 2022
+// on Fri Jun 24 01:29:30 ICT 2022
 
 .package CCCD {
 	.aid 0x11:0x22:0x33:0x44:0x55;
@@ -15,6 +15,7 @@
 
 	.applet {
 		0x11:0x22:0x33:0x44:0x55:0x0 CCCD;
+		0x11:0x22:0x33:0x44:0x55:0x11 RSA;
 	}
 
 	.constantPool {
@@ -33,7 +34,7 @@
 		// 6
 		instanceFieldRef 2.16 CCCD/rsaPair;
 		// 7
-		instanceFieldRef byte[] CCCD/tempBuffer;
+		instanceFieldRef byte[] CCCD/hashBuffer;
 		// 8
 		instanceFieldRef byte[] CCCD/dataBuffer;
 		// 9
@@ -41,39 +42,35 @@
 		// 10
 		instanceFieldRef 3.9 CCCD/initPin;
 		// 11
-		instanceFieldRef AESUltils CCCD/_aesUtils;
+		instanceFieldRef short CCCD/sigLen;
 		// 12
-		instanceFieldRef 2.7 CCCD/rsaKeyPriv;
+		instanceFieldRef byte[] CCCD/sig_buffer;
 		// 13
-		instanceFieldRef 2.9 CCCD/rsaKeyPub;
+		instanceFieldRef AESUltils CCCD/_aesUtils;
 		// 14
-		instanceFieldRef byte[] CCCD/encryptedData;
+		instanceFieldRef 2.7 CCCD/rsaKeyPriv;
 		// 15
-		staticMethodRef 2.13.0(BSZ)Ljavacard/security/Key;;		// javacard/security/KeyBuilder.buildKey(BSZ)Ljavacard/security/Key;
-			.descriptor	Ljavacard/security/Key;	2.0;
-
+		instanceFieldRef 2.9 CCCD/rsaKeyPub;
 		// 16
-		classRef 2.20;		// javacard/security/AESKey
+		instanceFieldRef 2.15 CCCD/rsaSig;
 		// 17
-		virtualMethodRef 1.1.3(Ljavacard/security/Key;B)V;		// init(Ljavacard/security/Key;B)V
-			.descriptor	Ljavacard/security/Key;	2.0;
-
+		instanceFieldRef 2.8 CCCD/rsaPrivKey;
 		// 18
-		virtualMethodRef 1.1.1([BSS[BS)S;		// doFinal([BSS[BS)S
+		instanceFieldRef 2.9 CCCD/rsaPubKey;
 		// 19
-		virtualMethodRef 2.12.1()S;		// getReason()S
+		instanceFieldRef byte[] CCCD/encryptedData;
 		// 20
-		classRef CCCD;
+		instanceFieldRef byte[] RSA/s1;
 		// 21
-		staticMethodRef CCCD/<init>([BSB)V;
+		instanceFieldRef short RSA/sigLen;
 		// 22
-		staticMethodRef 3.3.0()V;		// javacard/framework/Applet.<init>()V
+		instanceFieldRef byte[] RSA/sig_buffer;
 		// 23
-		staticMethodRef 3.8.13(SB)[B;		// javacard/framework/JCSystem.makeTransientByteArray(SB)[B
+		instanceFieldRef 2.15 RSA/rsaSig;
 		// 24
-		classRef 2.16;		// javacard/security/KeyPair
+		instanceFieldRef 2.8 RSA/rsaPrivKey;
 		// 25
-		staticMethodRef 2.16.0(BS)V;		// javacard/security/KeyPair.<init>(BS)V
+		instanceFieldRef 2.9 RSA/rsaPubKey;
 		// 26
 		staticMethodRef 0.0.0()V;		// java/lang/Object.<init>()V
 		// 27
@@ -95,105 +92,169 @@
 		// 34
 		virtualMethodRef 3.9.8([BSB)V;		// update([BSB)V
 		// 35
-		virtualMethodRef 3.3.1()V;		// register()V
-		// 36
-		classRef AESUltils;
-		// 37
-		staticMethodRef AESUltils/<init>()V;
-		// 38
 		staticMethodRef 3.8.2()V;		// javacard/framework/JCSystem.commitTransaction()V
+		// 36
+		staticMethodRef 3.16.2([BS[BSS)S;		// javacard/framework/Util.arrayCopyNonAtomic([BS[BSS)S
+		// 37
+		virtualMethodRef 3.3.1()V;		// register()V
+		// 38
+		classRef AESUltils;
 		// 39
-		staticMethodRef 3.8.18()V;		// javacard/framework/JCSystem.requestObjectDeletion()V
+		staticMethodRef AESUltils/<init>()V;
 		// 40
-		virtualMethodRef 3.9.2()B;		// getTriesRemaining()B
+		classRef 2.12;		// javacard/security/CryptoException
 		// 41
-		virtualMethodRef 3.9.5()V;		// reset()V
+		virtualMethodRef CCCD/initRsa()V;
 		// 42
+		staticMethodRef 3.8.18()V;		// javacard/framework/JCSystem.requestObjectDeletion()V
+		// 43
+		virtualMethodRef 3.9.2()B;		// getTriesRemaining()B
+		// 44
+		virtualMethodRef 3.9.5()V;		// reset()V
+		// 45
 		staticMethodRef CCCD/initCard(Ljavacard/framework/APDU;)V;
 			.descriptor	Ljavacard/framework/APDU;	3.10;
 
-		// 43
+		// 46
 		staticMethodRef CCCD/getCardInfo(Ljavacard/framework/APDU;)V;
 			.descriptor	Ljavacard/framework/APDU;	3.10;
 
-		// 44
+		// 47
 		staticMethodRef CCCD/verify(Ljavacard/framework/APDU;)V;
 			.descriptor	Ljavacard/framework/APDU;	3.10;
 
-		// 45
+		// 48
 		virtualMethodRef 3.9.6()V;		// resetAndUnblock()V
-		// 46
+		// 49
 		staticMethodRef CCCD/changePass(Ljavacard/framework/APDU;)V;
 			.descriptor	Ljavacard/framework/APDU;	3.10;
 
-		// 47
+		// 50
 		virtualMethodRef CCCD/gen_rsa_key()V;
-		// 48
+		// 51
 		virtualMethodRef CCCD/sign_message(Ljavacard/framework/APDU;)V;
 			.descriptor	Ljavacard/framework/APDU;	3.10;
 
-		// 49
+		// 52
 		staticMethodRef CCCD/getPublicRSA(Ljavacard/framework/APDU;S)V;
 			.descriptor	Ljavacard/framework/APDU;	3.10;
 
-		// 50
+		// 53
 		virtualMethodRef 2.16.1()V;		// genKeyPair()V
-		// 51
+		// 54
 		virtualMethodRef 2.16.2()Ljavacard/security/PrivateKey;;		// getPrivate()Ljavacard/security/PrivateKey;
 			.descriptor	Ljavacard/security/PrivateKey;	2.2;
 
-		// 52
-		classRef 2.7;		// javacard/security/RSAPrivateCrtKey
-		// 53
-		staticMethodRef 3.16.2([BS[BSS)S;		// javacard/framework/Util.arrayCopyNonAtomic([BS[BSS)S
-		// 54
-		virtualMethodRef 2.16.3()Ljavacard/security/PublicKey;;		// getPublic()Ljavacard/security/PublicKey;
-			.descriptor	Ljavacard/security/PublicKey;	2.3;
-
 		// 55
-		classRef 2.9;		// javacard/security/RSAPublicKey
+		classRef 2.7;		// javacard/security/RSAPrivateCrtKey
 		// 56
-		classRef 2.12;		// javacard/security/CryptoException
-		// 57
-		virtualMethodRef 3.10.8(SS)V;		// setOutgoingAndSend(SS)V
-		// 58
-		virtualMethodRef 3.10.6()S;		// setIncomingAndReceive()S
-		// 59
-		virtualMethodRef CCCD/pkcs1_sha256([BSS)V;
-		// 60
-		staticMethodRef 3.16.3([BSSB)S;		// javacard/framework/Util.arrayFillNonAtomic([BSSB)S
-		// 61
-		virtualMethodRef 2.11.4()V;		// reset()V
-		// 62
-		staticFieldRef byte[] CCCD/SHA256_PREFIX;
-		// 63
-		virtualMethodRef 2.11.1([BSS[BS)S;		// doFinal([BSS[BS)S
-		// 64
-		virtualMethodRef 3.9.4()Z;		// isValidated()Z
-		// 65
-		virtualMethodRef 3.9.1([BSB)Z;		// check([BSB)Z
-		// 66
-		virtualMethodRef 3.10.15()S;		// getIncomingLength()S
-		// 67
-		virtualMethodRef 3.10.16()S;		// getOffsetCdata()S
-		// 68
 		staticMethodRef 1.1.0(BZ)Ljavacardx/crypto/Cipher;;		// javacardx/crypto/Cipher.getInstance(BZ)Ljavacardx/crypto/Cipher;
 			.descriptor	Ljavacardx/crypto/Cipher;	1.1;
 
+		// 57
+		virtualMethodRef 2.16.3()Ljavacard/security/PublicKey;;		// getPublic()Ljavacard/security/PublicKey;
+			.descriptor	Ljavacard/security/PublicKey;	2.3;
+
+		// 58
+		classRef 2.9;		// javacard/security/RSAPublicKey
+		// 59
+		staticMethodRef 2.13.0(BSZ)Ljavacard/security/Key;;		// javacard/security/KeyBuilder.buildKey(BSZ)Ljavacard/security/Key;
+			.descriptor	Ljavacard/security/Key;	2.0;
+
+		// 60
+		staticMethodRef 2.15.0(BZ)Ljavacard/security/Signature;;		// javacard/security/Signature.getInstance(BZ)Ljavacard/security/Signature;
+			.descriptor	Ljavacard/security/Signature;	2.15;
+
+		// 61
+		classRef 2.20;		// javacard/security/AESKey
+		// 62
+		classRef 2.8;		// javacard/security/RSAPrivateKey
+		// 63
+		virtualMethodRef 1.1.3(Ljavacard/security/Key;B)V;		// init(Ljavacard/security/Key;B)V
+			.descriptor	Ljavacard/security/Key;	2.0;
+
+		// 64
+		virtualMethodRef 1.1.1([BSS[BS)S;		// doFinal([BSS[BS)S
+		// 65
+		virtualMethodRef 3.10.8(SS)V;		// setOutgoingAndSend(SS)V
+		// 66
+		virtualMethodRef 3.10.6()S;		// setIncomingAndReceive()S
+		// 67
+		virtualMethodRef CCCD/pkcs1_sha256([BSS[B)V;
+		// 68
+		virtualMethodRef 2.15.3(Ljavacard/security/Key;B)V;		// init(Ljavacard/security/Key;B)V
+			.descriptor	Ljavacard/security/Key;	2.0;
+
 		// 69
-		virtualMethodRef 3.10.3(S)S;		// receiveBytes(S)S
+		virtualMethodRef 2.15.5([BSS[BS)S;		// sign([BSS[BS)S
 		// 70
-		virtualMethodRef AESUltils/paddingArray([BS)[B;
+		virtualMethodRef 3.10.7()S;		// setOutgoing()S
 		// 71
+		virtualMethodRef 3.10.9(S)V;		// setOutgoingLength(S)V
+		// 72
+		virtualMethodRef 3.10.5([BSS)V;		// sendBytesLong([BSS)V
+		// 73
+		staticMethodRef 3.16.3([BSSB)S;		// javacard/framework/Util.arrayFillNonAtomic([BSSB)S
+		// 74
+		virtualMethodRef 2.11.4()V;		// reset()V
+		// 75
+		staticFieldRef byte[] CCCD/SHA256_PREFIX;
+		// 76
+		virtualMethodRef 2.11.1([BSS[BS)S;		// doFinal([BSS[BS)S
+		// 77
+		virtualMethodRef 3.9.4()Z;		// isValidated()Z
+		// 78
+		virtualMethodRef 3.9.1([BSB)Z;		// check([BSB)Z
+		// 79
+		virtualMethodRef 3.10.15()S;		// getIncomingLength()S
+		// 80
+		virtualMethodRef 3.10.16()S;		// getOffsetCdata()S
+		// 81
+		virtualMethodRef 2.12.1()S;		// getReason()S
+		// 82
+		virtualMethodRef 3.10.3(S)S;		// receiveBytes(S)S
+		// 83
+		virtualMethodRef AESUltils/paddingArray([BS)[B;
+		// 84
 		virtualMethodRef AESUltils/doEncryptAesCipher(Ljavacard/framework/APDU;[B)V;
 			.descriptor	Ljavacard/framework/APDU;	3.10;
 
-		// 72
-		virtualMethodRef 3.10.7()S;		// setOutgoing()S
-		// 73
-		virtualMethodRef 3.10.9(S)V;		// setOutgoingLength(S)V
-		// 74
-		virtualMethodRef 3.10.5([BSS)V;		// sendBytesLong([BSS)V
+		// 85
+		classRef CCCD;
+		// 86
+		virtualMethodRef RSA/initRsa()V;
+		// 87
+		staticMethodRef CCCD/<init>([BSB)V;
+		// 88
+		staticMethodRef 3.3.0()V;		// javacard/framework/Applet.<init>()V
+		// 89
+		staticMethodRef 3.8.13(SB)[B;		// javacard/framework/JCSystem.makeTransientByteArray(SB)[B
+		// 90
+		classRef 2.16;		// javacard/security/KeyPair
+		// 91
+		staticMethodRef 2.16.0(BS)V;		// javacard/security/KeyPair.<init>(BS)V
+		// 92
+		classRef RSA;
+		// 93
+		staticMethodRef RSA/<init>()V;
+		// 94
+		virtualMethodRef 3.3.2([BSB)V;		// register([BSB)V
+		// 95
+		virtualMethodRef 3.3.3()Z;		// selectingApplet()Z
+		// 96
+		staticMethodRef RSA/rsaSign(Ljavacard/framework/APDU;)V;
+			.descriptor	Ljavacard/framework/APDU;	3.10;
+
+		// 97
+		staticMethodRef RSA/rsaVerify(Ljavacard/framework/APDU;)V;
+			.descriptor	Ljavacard/framework/APDU;	3.10;
+
+		// 98
+		staticMethodRef RSA/getPublicRSA(Ljavacard/framework/APDU;S)V;
+			.descriptor	Ljavacard/framework/APDU;	3.10;
+
+		// 99
+		virtualMethodRef 2.15.7([BSS[BSS)Z;		// verify([BSS[BSS)Z
 	}
 
 	.class public AESUltils 0 extends 0.0 {		// extends java/lang/Object
@@ -235,7 +296,7 @@
 					aload_0;
 					sspush 256;
 					sconst_2;
-					invokestatic 23;		// javacard/framework/JCSystem.makeTransientByteArray(SB)[B
+					invokestatic 89;		// javacard/framework/JCSystem.makeTransientByteArray(SB)[B
 					putfield_a 0;		// reference CCCD/AESUltils.tempBuffer
 					aload_0;
 					bspush 16;
@@ -372,7 +433,7 @@
 					aload_0;
 					sload 4;
 					putfield_b 2;		// byte CCCD/AESUltils.aesKeyLen
-					invokestatic 38;		// javacard/framework/JCSystem.commitTransaction()V
+					invokestatic 35;		// javacard/framework/JCSystem.commitTransaction()V
 					return;
 		}
 
@@ -404,7 +465,7 @@
 					aload 4;
 					sconst_0;
 					sload_3;
-					invokestatic 53;		// javacard/framework/Util.arrayCopyNonAtomic([BS[BSS)S
+					invokestatic 36;		// javacard/framework/Util.arrayCopyNonAtomic([BS[BSS)S
 					pop;
 					aload 4;
 					areturn;
@@ -425,14 +486,14 @@
 				L2:	aload_0;
 					bspush 14;
 					sconst_0;
-					invokestatic 68;		// javacardx/crypto/Cipher.getInstance(BZ)Ljavacardx/crypto/Cipher;
+					invokestatic 56;		// javacardx/crypto/Cipher.getInstance(BZ)Ljavacardx/crypto/Cipher;
 					putfield_a 3;		// reference CCCD/AESUltils.aesCipher
 					aload_0;
 					bspush 15;
 					sspush 128;
 					sconst_0;
-					invokestatic 15;		// javacard/security/KeyBuilder.buildKey(BSZ)Ljavacard/security/Key;
-					checkcast 0 16;		// T_CLASSORINTERFACE javacard/security/AESKey
+					invokestatic 59;		// javacard/security/KeyBuilder.buildKey(BSZ)Ljavacard/security/Key;
+					checkcast 0 61;		// T_CLASSORINTERFACE javacard/security/AESKey
 					putfield_a 4;		// reference CCCD/AESUltils.tempAesKey1
 					sload_3;
 					ifle L4;
@@ -445,18 +506,18 @@
 				L5:	getfield_a_this 4;		// reference CCCD/AESUltils.tempAesKey1
 					getfield_a_this 1;		// reference CCCD/AESUltils.aesKey
 					sconst_0;
-					invokeinterface 3 16 4;		// javacard/security/AESKey
+					invokeinterface 3 61 4;		// javacard/security/AESKey
 					getfield_a_this 3;		// reference CCCD/AESUltils.aesCipher
 					getfield_a_this 4;		// reference CCCD/AESUltils.tempAesKey1
 					sconst_2;
-					invokevirtual 17;		// init(Ljavacard/security/Key;B)V
+					invokevirtual 63;		// init(Ljavacard/security/Key;B)V
 					getfield_a_this 3;		// reference CCCD/AESUltils.aesCipher
 					aload_2;
 					sconst_0;
 					sload_3;
 					aload 4;
 					sconst_0;
-					invokevirtual 18;		// doFinal([BSS[BS)S
+					invokevirtual 64;		// doFinal([BSS[BS)S
 					pop;
 					aload 4;
 					sconst_0;
@@ -468,14 +529,14 @@
 				L6:	goto L10;
 				L7:	astore_3;
 				L8:	aload_3;
-					invokevirtual 19;		// getReason()S
+					invokevirtual 81;		// getReason()S
 					sstore 4;
 				L9:	sload 4;
 					invokestatic 28;		// javacard/framework/ISOException.throwIt(S)V
 				L10:	return;
 			.exceptionTable {
 				// start_block end_block handler_block catch_type_index
-				L0 L6 L7 56;
+				L0 L6 L7 40;
 			}
 		}
 
@@ -485,17 +546,23 @@
 
 		.fields {
 			private byte[] encryptedData 0;		// [B
-			 3.9 initPin 1;		// Ljavacard/framework/OwnerPIN;
-			 AESUltils _aesUtils 2;		// LCCCD/AESUltils;
-			 1.1 cipherRSA 3;		// Ljavacardx/crypto/Cipher;
-			 2.16 rsaPair 4;		// Ljavacard/security/KeyPair;
-			 2.7 rsaKeyPriv 5;		// Ljavacard/security/RSAPrivateCrtKey;
-			 2.9 rsaKeyPub 6;		// Ljavacard/security/RSAPublicKey;
-			 2.14 rng 7;		// Ljavacard/security/RandomData;
-			 byte[] tempBuffer 8;		// [B
-			 byte[] dataBuffer 9;		// [B
-			 2.11 md 10;		// Ljavacard/security/MessageDigest;
-			 short balance 11;		// S
+			private 2.8 rsaPrivKey 1;		// Ljavacard/security/RSAPrivateKey;
+			private 2.9 rsaPubKey 2;		// Ljavacard/security/RSAPublicKey;
+			private 2.15 rsaSig 3;		// Ljavacard/security/Signature;
+			private byte[] s1 4;		// [B
+			private byte[] sig_buffer 5;		// [B
+			 3.9 initPin 6;		// Ljavacard/framework/OwnerPIN;
+			 AESUltils _aesUtils 7;		// LCCCD/AESUltils;
+			 1.1 cipherRSA 8;		// Ljavacardx/crypto/Cipher;
+			 2.16 rsaPair 9;		// Ljavacard/security/KeyPair;
+			 2.7 rsaKeyPriv 10;		// Ljavacard/security/RSAPrivateCrtKey;
+			 2.9 rsaKeyPub 11;		// Ljavacard/security/RSAPublicKey;
+			 2.14 rng 12;		// Ljavacard/security/RandomData;
+			 byte[] hashBuffer 13;		// [B
+			 byte[] dataBuffer 14;		// [B
+			 2.11 md 15;		// Ljavacard/security/MessageDigest;
+			private short sigLen 16;		// S
+			 short balance 17;		// S
 			private static short dataLength;		// S
 			static final byte Wallet_CLA = -80;		// B
 			private static final byte VERIFY = 32;		// B
@@ -534,10 +601,11 @@
 			process(Ljavacard/framework/APDU;)V;
 			gen_rsa_key()V;
 			sign_message(Ljavacard/framework/APDU;)V;
-			pkcs1_sha256([BSS)V;
+			pkcs1_sha256([BSS[B)V;
 		}
 
 		.packageMethodTable 0 {
+			initRsa()V;
 		}
 
 		.implementedInterfaceInfoTable { 
@@ -550,7 +618,7 @@
 			.stack 6;
 			.locals 0;
 
-				L0:	new 20;		// CCCD/CCCD
+				L0:	new 85;		// CCCD/CCCD
 					dup;
 					aload_0;
 					sload_1;
@@ -559,7 +627,7 @@
 					aload_0;
 					sload_1;
 					baload;
-					invokespecial 21;		// CCCD/CCCD.<init>([BSB)V
+					invokespecial 87;		// CCCD/CCCD.<init>([BSB)V
 					pop;
 					return;
 		}
@@ -569,28 +637,28 @@
 			.locals 1;
 
 				L0:	aload_0;
-					invokespecial 22;		// javacard/framework/Applet.<init>()V
+					invokespecial 88;		// javacard/framework/Applet.<init>()V
 					aload_0;
 					bspush 12;
 					sconst_0;
-					invokestatic 68;		// javacardx/crypto/Cipher.getInstance(BZ)Ljavacardx/crypto/Cipher;
+					invokestatic 56;		// javacardx/crypto/Cipher.getInstance(BZ)Ljavacardx/crypto/Cipher;
 					putfield_a 5;		// reference CCCD/CCCD.cipherRSA
 					aload_0;
-					new 24;		// javacard/security/KeyPair
+					new 90;		// javacard/security/KeyPair
 					dup;
 					sconst_2;
 					sspush 2048;
-					invokespecial 25;		// javacard/security/KeyPair.<init>(BS)V
+					invokespecial 91;		// javacard/security/KeyPair.<init>(BS)V
 					putfield_a 6;		// reference CCCD/CCCD.rsaPair
 					aload_0;
 					sspush 256;
 					sconst_2;
-					invokestatic 23;		// javacard/framework/JCSystem.makeTransientByteArray(SB)[B
-					putfield_a 7;		// reference CCCD/CCCD.tempBuffer
+					invokestatic 89;		// javacard/framework/JCSystem.makeTransientByteArray(SB)[B
+					putfield_a 7;		// reference CCCD/CCCD.hashBuffer
 					aload_0;
 					sspush 256;
 					sconst_2;
-					invokestatic 23;		// javacard/framework/JCSystem.makeTransientByteArray(SB)[B
+					invokestatic 89;		// javacard/framework/JCSystem.makeTransientByteArray(SB)[B
 					putfield_a 8;		// reference CCCD/CCCD.dataBuffer
 					aload_0;
 					sconst_4;
@@ -631,13 +699,22 @@
 					s2b;
 					invokevirtual 34;		// update([BSB)V
 					aload_0;
-					invokevirtual 35;		// register()V
+					sspush 128;
+					putfield_s 11;		// short CCCD/CCCD.sigLen
 					aload_0;
-					new 36;		// CCCD/AESUltils
+					getfield_s_this 11;		// short CCCD/CCCD.sigLen
+					newarray 11;
+					putfield_a 12;		// reference CCCD/CCCD.sig_buffer
+					aload_0;
+					invokevirtual 37;		// register()V
+					aload_0;
+					new 38;		// CCCD/AESUltils
 					dup;
-					invokespecial 37;		// CCCD/AESUltils.<init>()V
-					putfield_a 11;		// reference CCCD/CCCD._aesUtils
-					invokestatic 39;		// javacard/framework/JCSystem.requestObjectDeletion()V
+					invokespecial 39;		// CCCD/AESUltils.<init>()V
+					putfield_a 13;		// reference CCCD/CCCD._aesUtils
+					aload_0;
+					invokevirtual 41;		// initRsa()V
+					invokestatic 42;		// javacard/framework/JCSystem.requestObjectDeletion()V
 					return;
 		}
 
@@ -646,7 +723,7 @@
 			.locals 0;
 
 				L0:	getfield_a_this 10;		// reference CCCD/CCCD.initPin
-					invokevirtual 40;		// getTriesRemaining()B
+					invokevirtual 43;		// getTriesRemaining()B
 					ifne L2;
 				L1:	sconst_0;
 					sreturn;
@@ -659,7 +736,7 @@
 			.locals 0;
 
 				L0:	getfield_a_this 10;		// reference CCCD/CCCD.initPin
-					invokevirtual 41;		// reset()V
+					invokevirtual 44;		// reset()V
 					return;
 		}
 
@@ -695,39 +772,39 @@
 					slookupswitch L16 9 -48 L13 -45 L12 -16 L14 -14 L15 19 L8 32 L9 80 L7 96 L10 112 L11;
 				L7:	aload_0;
 					aload_1;
-					invokespecial 42;		// CCCD/CCCD.initCard(Ljavacard/framework/APDU;)V
+					invokespecial 45;		// CCCD/CCCD.initCard(Ljavacard/framework/APDU;)V
 					goto L17;
 				L8:	aload_0;
 					aload_1;
-					invokespecial 43;		// CCCD/CCCD.getCardInfo(Ljavacard/framework/APDU;)V
+					invokespecial 46;		// CCCD/CCCD.getCardInfo(Ljavacard/framework/APDU;)V
 					goto L17;
 				L9:	aload_0;
 					aload_1;
-					invokespecial 44;		// CCCD/CCCD.verify(Ljavacard/framework/APDU;)V
+					invokespecial 47;		// CCCD/CCCD.verify(Ljavacard/framework/APDU;)V
 					return;
 				L10:	getfield_a_this 10;		// reference CCCD/CCCD.initPin
-					invokevirtual 45;		// resetAndUnblock()V
+					invokevirtual 48;		// resetAndUnblock()V
 					return;
 				L11:	aload_0;
 					aload_1;
-					invokespecial 46;		// CCCD/CCCD.changePass(Ljavacard/framework/APDU;)V
+					invokespecial 49;		// CCCD/CCCD.changePass(Ljavacard/framework/APDU;)V
 					return;
 				L12:	aload_0;
-					invokevirtual 47;		// gen_rsa_key()V
+					invokevirtual 50;		// gen_rsa_key()V
 					goto L17;
 				L13:	aload_0;
 					aload_1;
-					invokevirtual 48;		// sign_message(Ljavacard/framework/APDU;)V
+					invokevirtual 51;		// sign_message(Ljavacard/framework/APDU;)V
 					goto L17;
 				L14:	aload_0;
 					aload_1;
 					sconst_0;
-					invokespecial 49;		// CCCD/CCCD.getPublicRSA(Ljavacard/framework/APDU;S)V
+					invokespecial 52;		// CCCD/CCCD.getPublicRSA(Ljavacard/framework/APDU;S)V
 					goto L17;
 				L15:	aload_0;
 					aload_1;
 					sconst_1;
-					invokespecial 49;		// CCCD/CCCD.getPublicRSA(Ljavacard/framework/APDU;S)V
+					invokespecial 52;		// CCCD/CCCD.getPublicRSA(Ljavacard/framework/APDU;S)V
 					goto L17;
 				L16:	sspush 27904;
 					invokestatic 28;		// javacard/framework/ISOException.throwIt(S)V
@@ -739,17 +816,74 @@
 			.locals 0;
 
 				L0:	getfield_a_this 6;		// reference CCCD/CCCD.rsaPair
-					invokevirtual 50;		// genKeyPair()V
+					invokevirtual 53;		// genKeyPair()V
 					aload_0;
 					getfield_a_this 6;		// reference CCCD/CCCD.rsaPair
-					invokevirtual 51;		// getPrivate()Ljavacard/security/PrivateKey;
-					checkcast 0 52;		// T_CLASSORINTERFACE javacard/security/RSAPrivateCrtKey
-					putfield_a 12;		// reference CCCD/CCCD.rsaKeyPriv
+					invokevirtual 54;		// getPrivate()Ljavacard/security/PrivateKey;
+					checkcast 0 55;		// T_CLASSORINTERFACE javacard/security/RSAPrivateCrtKey
+					putfield_a 14;		// reference CCCD/CCCD.rsaKeyPriv
 					aload_0;
 					getfield_a_this 6;		// reference CCCD/CCCD.rsaPair
-					invokevirtual 54;		// getPublic()Ljavacard/security/PublicKey;
-					checkcast 0 55;		// T_CLASSORINTERFACE javacard/security/RSAPublicKey
-					putfield_a 13;		// reference CCCD/CCCD.rsaKeyPub
+					invokevirtual 57;		// getPublic()Ljavacard/security/PublicKey;
+					checkcast 0 58;		// T_CLASSORINTERFACE javacard/security/RSAPublicKey
+					putfield_a 15;		// reference CCCD/CCCD.rsaKeyPub
+					return;
+		}
+
+		.method  initRsa()V 128 {
+			.stack 5;
+			.locals 1;
+
+				L0:	aload_0;
+					sspush 256;
+					putfield_s 11;		// short CCCD/CCCD.sigLen
+					aload_0;
+					getfield_s_this 11;		// short CCCD/CCCD.sigLen
+					newarray 11;
+					putfield_a 12;		// reference CCCD/CCCD.sig_buffer
+					aload_0;
+					bspush 10;
+					sconst_0;
+					invokestatic 60;		// javacard/security/Signature.getInstance(BZ)Ljavacard/security/Signature;
+					putfield_a 16;		// reference CCCD/CCCD.rsaSig
+					aload_0;
+					sconst_5;
+					bspush 8;
+					getfield_s_this 11;		// short CCCD/CCCD.sigLen
+					smul;
+					sconst_0;
+					invokestatic 59;		// javacard/security/KeyBuilder.buildKey(BSZ)Ljavacard/security/Key;
+					checkcast 0 62;		// T_CLASSORINTERFACE javacard/security/RSAPrivateKey
+					putfield_a 17;		// reference CCCD/CCCD.rsaPrivKey
+					aload_0;
+					sconst_4;
+					bspush 8;
+					getfield_s_this 11;		// short CCCD/CCCD.sigLen
+					smul;
+					sconst_0;
+					invokestatic 59;		// javacard/security/KeyBuilder.buildKey(BSZ)Ljavacard/security/Key;
+					checkcast 0 58;		// T_CLASSORINTERFACE javacard/security/RSAPublicKey
+					putfield_a 18;		// reference CCCD/CCCD.rsaPubKey
+					new 90;		// javacard/security/KeyPair
+					dup;
+					sconst_1;
+					bspush 8;
+					getfield_s_this 11;		// short CCCD/CCCD.sigLen
+					smul;
+					invokespecial 91;		// javacard/security/KeyPair.<init>(BS)V
+					astore_1;
+				L1:	aload_1;
+					invokevirtual 53;		// genKeyPair()V
+					aload_0;
+					aload_1;
+					invokevirtual 54;		// getPrivate()Ljavacard/security/PrivateKey;
+					checkcast 0 62;		// T_CLASSORINTERFACE javacard/security/RSAPrivateKey
+					putfield_a 17;		// reference CCCD/CCCD.rsaPrivKey
+					aload_0;
+					aload_1;
+					invokevirtual 57;		// getPublic()Ljavacard/security/PublicKey;
+					checkcast 0 58;		// T_CLASSORINTERFACE javacard/security/RSAPublicKey
+					putfield_a 18;		// reference CCCD/CCCD.rsaPubKey
 					return;
 		}
 
@@ -759,8 +893,8 @@
 
 			.descriptor	Ljavacard/framework/APDU;	3.10;
 
-				L0:	getfield_a_this 13;		// reference CCCD/CCCD.rsaKeyPub
-					invokeinterface 1 55 3;		// javacard/security/RSAPublicKey
+				L0:	getfield_a_this 15;		// reference CCCD/CCCD.rsaKeyPub
+					invokeinterface 1 58 3;		// javacard/security/RSAPublicKey
 					ifne L2;
 				L1:	sspush 27267;
 					invokestatic 28;		// javacard/framework/ISOException.throwIt(S)V
@@ -771,16 +905,16 @@
 					sstore 4;
 				L4:	sload_2;
 					slookupswitch L7 2 0 L5 1 L6;
-				L5:	getfield_a_this 13;		// reference CCCD/CCCD.rsaKeyPub
+				L5:	getfield_a_this 15;		// reference CCCD/CCCD.rsaKeyPub
 					aload_3;
 					sconst_0;
-					invokeinterface 3 55 5;		// javacard/security/RSAPublicKey
+					invokeinterface 3 58 5;		// javacard/security/RSAPublicKey
 					sstore 4;
 					goto L8;
-				L6:	getfield_a_this 13;		// reference CCCD/CCCD.rsaKeyPub
+				L6:	getfield_a_this 15;		// reference CCCD/CCCD.rsaKeyPub
 					aload_3;
 					sconst_0;
-					invokeinterface 3 55 4;		// javacard/security/RSAPublicKey
+					invokeinterface 3 58 4;		// javacard/security/RSAPublicKey
 					sstore 4;
 					goto L8;
 				L7:	sspush 27270;
@@ -788,7 +922,7 @@
 				L8:	aload_1;
 					sconst_0;
 					sload 4;
-					invokevirtual 57;		// setOutgoingAndSend(SS)V
+					invokevirtual 65;		// setOutgoingAndSend(SS)V
 					return;
 		}
 
@@ -798,21 +932,20 @@
 
 			.descriptor	Ljavacard/framework/APDU;	3.10;
 
-				L0:	getfield_a_this 12;		// reference CCCD/CCCD.rsaKeyPriv
-					invokeinterface 1 52 3;		// javacard/security/RSAPrivateCrtKey
+				L0:	getfield_a_this 14;		// reference CCCD/CCCD.rsaKeyPriv
+					invokeinterface 1 55 3;		// javacard/security/RSAPrivateCrtKey
 					ifne L2;
 				L1:	sspush 27013;
 					invokestatic 28;		// javacard/framework/ISOException.throwIt(S)V
 				L2:	getfield_a_this 5;		// reference CCCD/CCCD.cipherRSA
-					getfield_a_this 6;		// reference CCCD/CCCD.rsaPair
-					invokevirtual 51;		// getPrivate()Ljavacard/security/PrivateKey;
+					getfield_a_this 14;		// reference CCCD/CCCD.rsaKeyPriv
 					sconst_1;
-					invokevirtual 17;		// init(Ljavacard/security/Key;B)V
+					invokevirtual 63;		// init(Ljavacard/security/Key;B)V
 					aload_1;
 					invokevirtual 27;		// getBuffer()[B
 					astore_2;
 				L3:	aload_1;
-					invokevirtual 58;		// setIncomingAndReceive()S
+					invokevirtual 66;		// setIncomingAndReceive()S
 					sstore_3;
 				L4:	sload_3;
 					sspush 256;
@@ -824,85 +957,104 @@
 					getfield_a_this 8;		// reference CCCD/CCCD.dataBuffer
 					sconst_0;
 					sload_3;
-					invokestatic 53;		// javacard/framework/Util.arrayCopyNonAtomic([BS[BSS)S
+					invokestatic 36;		// javacard/framework/Util.arrayCopyNonAtomic([BS[BSS)S
 					pop;
 					aload_0;
 					getfield_a_this 8;		// reference CCCD/CCCD.dataBuffer
 					sconst_0;
 					sload_3;
-					invokevirtual 59;		// pkcs1_sha256([BSS)V
-					getfield_a_this 5;		// reference CCCD/CCCD.cipherRSA
-					getfield_a_this 7;		// reference CCCD/CCCD.tempBuffer
+					getfield_a_this 7;		// reference CCCD/CCCD.hashBuffer
+					invokevirtual 67;		// pkcs1_sha256([BSS[B)V
+					getfield_a_this 16;		// reference CCCD/CCCD.rsaSig
+					getfield_a_this 17;		// reference CCCD/CCCD.rsaPrivKey
+					sconst_1;
+					invokevirtual 68;		// init(Ljavacard/security/Key;B)V
+					getfield_a_this 16;		// reference CCCD/CCCD.rsaSig
+					getfield_a_this 7;		// reference CCCD/CCCD.hashBuffer
 					sconst_0;
-					sspush 256;
-					aload_2;
+					getfield_a_this 7;		// reference CCCD/CCCD.hashBuffer
+					arraylength;
+					getfield_a_this 12;		// reference CCCD/CCCD.sig_buffer
 					sconst_0;
-					invokevirtual 18;		// doFinal([BSS[BS)S
+					invokevirtual 69;		// sign([BSS[BS)S
 					pop;
-					getfield_a_this 7;		// reference CCCD/CCCD.tempBuffer
+					aload_1;
+					invokevirtual 70;		// setOutgoing()S
+					pop;
+					aload_1;
+					getfield_s_this 11;		// short CCCD/CCCD.sigLen
+					invokevirtual 71;		// setOutgoingLength(S)V
+					aload_1;
+					getfield_a_this 12;		// reference CCCD/CCCD.sig_buffer
+					sconst_0;
+					getfield_s_this 11;		// short CCCD/CCCD.sigLen
+					invokevirtual 72;		// sendBytesLong([BSS)V
+					getfield_a_this 7;		// reference CCCD/CCCD.hashBuffer
 					sconst_0;
 					sspush 256;
 					sconst_0;
-					invokestatic 60;		// javacard/framework/Util.arrayFillNonAtomic([BSSB)S
+					invokestatic 73;		// javacard/framework/Util.arrayFillNonAtomic([BSSB)S
 					pop;
 					getfield_a_this 8;		// reference CCCD/CCCD.dataBuffer
 					sconst_0;
 					sspush 256;
 					sconst_0;
-					invokestatic 60;		// javacard/framework/Util.arrayFillNonAtomic([BSSB)S
+					invokestatic 73;		// javacard/framework/Util.arrayFillNonAtomic([BSSB)S
 					pop;
-					aload_1;
+					getfield_a_this 12;		// reference CCCD/CCCD.sig_buffer
 					sconst_0;
-					sspush 256;
-					invokevirtual 57;		// setOutgoingAndSend(SS)V
+					getfield_s_this 11;		// short CCCD/CCCD.sigLen
+					sconst_0;
+					invokestatic 73;		// javacard/framework/Util.arrayFillNonAtomic([BSSB)S
+					pop;
 					return;
 		}
 
-		.method public pkcs1_sha256([BSS)V 10 {
+		.method public pkcs1_sha256([BSS[B)V 10 {
 			.stack 6;
 			.locals 0;
 
 				L0:	getfield_a_this 9;		// reference CCCD/CCCD.md
-					invokevirtual 61;		// reset()V
-					getfield_a_this 7;		// reference CCCD/CCCD.tempBuffer
+					invokevirtual 74;		// reset()V
+					aload 4;
 					sconst_0;
 					sspush 256;
 					sconst_0;
-					invokestatic 60;		// javacard/framework/Util.arrayFillNonAtomic([BSSB)S
+					invokestatic 73;		// javacard/framework/Util.arrayFillNonAtomic([BSSB)S
 					pop;
-					getfield_a_this 7;		// reference CCCD/CCCD.tempBuffer
+					aload 4;
 					sconst_0;
 					sconst_0;
 					bastore;
-					getfield_a_this 7;		// reference CCCD/CCCD.tempBuffer
+					aload 4;
 					sconst_1;
 					sconst_1;
 					bastore;
-					getfield_a_this 7;		// reference CCCD/CCCD.tempBuffer
+					aload 4;
 					sconst_2;
 					sspush 202;
 					sconst_m1;
-					invokestatic 60;		// javacard/framework/Util.arrayFillNonAtomic([BSSB)S
+					invokestatic 73;		// javacard/framework/Util.arrayFillNonAtomic([BSSB)S
 					pop;
-					getfield_a_this 7;		// reference CCCD/CCCD.tempBuffer
+					aload 4;
 					sspush 204;
 					sconst_0;
 					bastore;
-					getstatic_a 62;		// reference CCCD/CCCD.SHA256_PREFIX
+					getstatic_a 75;		// reference CCCD/CCCD.SHA256_PREFIX
 					sconst_0;
-					getfield_a_this 7;		// reference CCCD/CCCD.tempBuffer
+					aload 4;
 					sspush 205;
-					getstatic_a 62;		// reference CCCD/CCCD.SHA256_PREFIX
+					getstatic_a 75;		// reference CCCD/CCCD.SHA256_PREFIX
 					arraylength;
-					invokestatic 53;		// javacard/framework/Util.arrayCopyNonAtomic([BS[BSS)S
+					invokestatic 36;		// javacard/framework/Util.arrayCopyNonAtomic([BS[BSS)S
 					pop;
 					getfield_a_this 9;		// reference CCCD/CCCD.md
 					aload_1;
 					sload_2;
 					sload_3;
-					getfield_a_this 7;		// reference CCCD/CCCD.tempBuffer
+					aload 4;
 					sspush 224;
-					invokevirtual 63;		// doFinal([BSS[BS)S
+					invokevirtual 76;		// doFinal([BSS[BS)S
 					pop;
 					return;
 		}
@@ -914,7 +1066,7 @@
 			.descriptor	Ljavacard/framework/APDU;	3.10;
 
 				L0:	getfield_a_this 10;		// reference CCCD/CCCD.initPin
-					invokevirtual 64;		// isValidated()Z
+					invokevirtual 77;		// isValidated()Z
 					ifne L2;
 				L1:	sspush 25361;
 					invokestatic 28;		// javacard/framework/ISOException.throwIt(S)V
@@ -922,7 +1074,7 @@
 					invokevirtual 27;		// getBuffer()[B
 					astore_2;
 				L3:	aload_1;
-					invokevirtual 58;		// setIncomingAndReceive()S
+					invokevirtual 66;		// setIncomingAndReceive()S
 					pop;
 					aload_2;
 					sconst_4;
@@ -960,14 +1112,14 @@
 					invokevirtual 27;		// getBuffer()[B
 					astore_2;
 				L1:	aload_1;
-					invokevirtual 58;		// setIncomingAndReceive()S
+					invokevirtual 66;		// setIncomingAndReceive()S
 					s2b;
 					sstore_3;
 				L2:	getfield_a_this 10;		// reference CCCD/CCCD.initPin
 					aload_2;
 					sconst_5;
 					sload_3;
-					invokevirtual 65;		// check([BSB)Z
+					invokevirtual 78;		// check([BSB)Z
 					ifne L4;
 				L3:	sspush 25362;
 					invokestatic 28;		// javacard/framework/ISOException.throwIt(S)V
@@ -984,26 +1136,26 @@
 					invokevirtual 27;		// getBuffer()[B
 					astore_2;
 				L1:	aload_1;
-					invokevirtual 58;		// setIncomingAndReceive()S
+					invokevirtual 66;		// setIncomingAndReceive()S
 					sstore_3;
 				L2:	aload_1;
-					invokevirtual 66;		// getIncomingLength()S
+					invokevirtual 79;		// getIncomingLength()S
 					sstore 4;
 				L3:	aload_1;
-					invokevirtual 67;		// getOffsetCdata()S
+					invokevirtual 80;		// getOffsetCdata()S
 					sstore 5;
 				L4:	aload_0;
 					sload 4;
 					newarray 11;
-					putfield_a 14;		// reference CCCD/CCCD.encryptedData
+					putfield_a 19;		// reference CCCD/CCCD.encryptedData
 					sconst_0;
 					sstore 6;
 				L5:	sload_3;
 					ifle L7;
 				L6:	aload_2;
 					aload_1;
-					invokevirtual 67;		// getOffsetCdata()S
-					getfield_a_this 14;		// reference CCCD/CCCD.encryptedData
+					invokevirtual 80;		// getOffsetCdata()S
+					getfield_a_this 19;		// reference CCCD/CCCD.encryptedData
 					sload 6;
 					sload_3;
 					invokestatic 33;		// javacard/framework/Util.arrayCopy([BS[BSS)S
@@ -1014,19 +1166,19 @@
 					sstore 6;
 					aload_1;
 					sload 5;
-					invokevirtual 69;		// receiveBytes(S)S
+					invokevirtual 82;		// receiveBytes(S)S
 					sstore_3;
 					goto L5;
 				L7:	aload_0;
-					getfield_a_this 11;		// reference CCCD/CCCD._aesUtils
-					getfield_a_this 14;		// reference CCCD/CCCD.encryptedData
+					getfield_a_this 13;		// reference CCCD/CCCD._aesUtils
+					getfield_a_this 19;		// reference CCCD/CCCD.encryptedData
 					sload 4;
-					invokevirtual 70;		// paddingArray([BS)[B
-					putfield_a 14;		// reference CCCD/CCCD.encryptedData
-					getfield_a_this 11;		// reference CCCD/CCCD._aesUtils
+					invokevirtual 83;		// paddingArray([BS)[B
+					putfield_a 19;		// reference CCCD/CCCD.encryptedData
+					getfield_a_this 13;		// reference CCCD/CCCD._aesUtils
 					aload_1;
-					getfield_a_this 14;		// reference CCCD/CCCD.encryptedData
-					invokevirtual 71;		// doEncryptAesCipher(Ljavacard/framework/APDU;[B)V
+					getfield_a_this 19;		// reference CCCD/CCCD.encryptedData
+					invokevirtual 84;		// doEncryptAesCipher(Ljavacard/framework/APDU;[B)V
 					return;
 		}
 
@@ -1036,20 +1188,306 @@
 
 			.descriptor	Ljavacard/framework/APDU;	3.10;
 
-				L0:	getfield_a_this 14;		// reference CCCD/CCCD.encryptedData
+				L0:	getfield_a_this 19;		// reference CCCD/CCCD.encryptedData
 					arraylength;
 					sstore_2;
 				L1:	aload_1;
-					invokevirtual 72;		// setOutgoing()S
+					invokevirtual 70;		// setOutgoing()S
 					pop;
 					aload_1;
 					sload_2;
-					invokevirtual 73;		// setOutgoingLength(S)V
+					invokevirtual 71;		// setOutgoingLength(S)V
 					aload_1;
-					getfield_a_this 14;		// reference CCCD/CCCD.encryptedData
+					getfield_a_this 19;		// reference CCCD/CCCD.encryptedData
 					sconst_0;
 					sload_2;
-					invokevirtual 74;		// sendBytesLong([BSS)V
+					invokevirtual 72;		// sendBytesLong([BSS)V
+					return;
+		}
+
+	}
+
+	.class public RSA 2 extends 3.3 {		// extends javacard/framework/Applet
+
+		.fields {
+			private 2.8 rsaPrivKey 0;		// Ljavacard/security/RSAPrivateKey;
+			private 2.9 rsaPubKey 1;		// Ljavacard/security/RSAPublicKey;
+			private 2.15 rsaSig 2;		// Ljavacard/security/Signature;
+			private byte[] s1 3;		// [B
+			private byte[] sig_buffer 4;		// [B
+			private short sigLen 5;		// S
+			private static final byte INS_SIGN = 0;		// B
+			private static final byte INS_VERIFY = 1;		// B
+		}
+
+		.publicMethodTable 7 {
+			equals(Ljava/lang/Object;)Z;
+			register()V;
+			register([BSB)V;
+			selectingApplet()Z;
+			deselect()V;
+			getShareableInterfaceObject(Ljavacard/framework/AID;B)Ljavacard/framework/Shareable;;
+			select()Z;
+			process(Ljavacard/framework/APDU;)V;
+		}
+
+		.packageMethodTable 0 {
+			initRsa()V;
+		}
+
+		.method private <init>()V {
+			.stack 5;
+			.locals 0;
+
+				L0:	aload_0;
+					invokespecial 88;		// javacard/framework/Applet.<init>()V
+					aload_0;
+					sconst_3;
+					newarray 11;
+					dup;
+					sconst_0;
+					sconst_1;
+					bastore;
+					dup;
+					sconst_1;
+					sconst_2;
+					bastore;
+					dup;
+					sconst_2;
+					sconst_3;
+					bastore;
+					putfield_a 20;		// reference CCCD/RSA.s1
+					aload_0;
+					invokevirtual 86;		// initRsa()V
+					return;
+		}
+
+		.method  initRsa()V 128 {
+			.stack 5;
+			.locals 1;
+
+				L0:	aload_0;
+					sspush 256;
+					putfield_s 21;		// short CCCD/RSA.sigLen
+					aload_0;
+					getfield_s_this 21;		// short CCCD/RSA.sigLen
+					newarray 11;
+					putfield_a 22;		// reference CCCD/RSA.sig_buffer
+					getfield_a_this 20;		// reference CCCD/RSA.s1
+					arraylength;
+					getfield_s_this 21;		// short CCCD/RSA.sigLen
+					if_scmple L2;
+				L1:	sspush 26368;
+					invokestatic 28;		// javacard/framework/ISOException.throwIt(S)V
+				L2:	aload_0;
+					bspush 10;
+					sconst_0;
+					invokestatic 60;		// javacard/security/Signature.getInstance(BZ)Ljavacard/security/Signature;
+					putfield_a 23;		// reference CCCD/RSA.rsaSig
+					aload_0;
+					sconst_5;
+					bspush 8;
+					getfield_s_this 21;		// short CCCD/RSA.sigLen
+					smul;
+					sconst_0;
+					invokestatic 59;		// javacard/security/KeyBuilder.buildKey(BSZ)Ljavacard/security/Key;
+					checkcast 0 62;		// T_CLASSORINTERFACE javacard/security/RSAPrivateKey
+					putfield_a 24;		// reference CCCD/RSA.rsaPrivKey
+					aload_0;
+					sconst_4;
+					bspush 8;
+					getfield_s_this 21;		// short CCCD/RSA.sigLen
+					smul;
+					sconst_0;
+					invokestatic 59;		// javacard/security/KeyBuilder.buildKey(BSZ)Ljavacard/security/Key;
+					checkcast 0 58;		// T_CLASSORINTERFACE javacard/security/RSAPublicKey
+					putfield_a 25;		// reference CCCD/RSA.rsaPubKey
+					new 90;		// javacard/security/KeyPair
+					dup;
+					sconst_1;
+					bspush 8;
+					getfield_s_this 21;		// short CCCD/RSA.sigLen
+					smul;
+					invokespecial 91;		// javacard/security/KeyPair.<init>(BS)V
+					astore_1;
+				L3:	aload_1;
+					invokevirtual 53;		// genKeyPair()V
+					aload_0;
+					aload_1;
+					invokevirtual 54;		// getPrivate()Ljavacard/security/PrivateKey;
+					checkcast 0 62;		// T_CLASSORINTERFACE javacard/security/RSAPrivateKey
+					putfield_a 24;		// reference CCCD/RSA.rsaPrivKey
+					aload_0;
+					aload_1;
+					invokevirtual 57;		// getPublic()Ljavacard/security/PublicKey;
+					checkcast 0 58;		// T_CLASSORINTERFACE javacard/security/RSAPublicKey
+					putfield_a 25;		// reference CCCD/RSA.rsaPubKey
+					return;
+		}
+
+		.method public static install([BSB)V 0 {
+			.stack 5;
+			.locals 0;
+
+				L0:	new 92;		// CCCD/RSA
+					dup;
+					invokespecial 93;		// CCCD/RSA.<init>()V
+					aload_0;
+					sload_1;
+					sconst_1;
+					sadd;
+					aload_0;
+					sload_1;
+					baload;
+					invokevirtual 94;		// register([BSB)V
+					return;
+		}
+
+		.method public process(Ljavacard/framework/APDU;)V 7 {
+			.stack 3;
+			.locals 1;
+
+			.descriptor	Ljavacard/framework/APDU;	3.10;
+
+				L0:	aload_0;
+					invokevirtual 95;		// selectingApplet()Z
+					ifeq L2;
+				L1:	return;
+				L2:	aload_1;
+					invokevirtual 27;		// getBuffer()[B
+					astore_2;
+				L3:	aload_1;
+					invokevirtual 66;		// setIncomingAndReceive()S
+					pop;
+					aload_2;
+					sconst_1;
+					baload;
+					stableswitch L7 0 2 L4 L5 L6;
+				L4:	aload_0;
+					aload_1;
+					invokespecial 96;		// CCCD/RSA.rsaSign(Ljavacard/framework/APDU;)V
+					goto L8;
+				L5:	aload_0;
+					aload_1;
+					invokespecial 97;		// CCCD/RSA.rsaVerify(Ljavacard/framework/APDU;)V
+					goto L8;
+				L6:	aload_0;
+					aload_1;
+					sconst_0;
+					invokespecial 98;		// CCCD/RSA.getPublicRSA(Ljavacard/framework/APDU;S)V
+					goto L8;
+				L7:	sspush 27904;
+					invokestatic 28;		// javacard/framework/ISOException.throwIt(S)V
+				L8:	return;
+		}
+
+		.method private rsaSign(Ljavacard/framework/APDU;)V {
+			.stack 6;
+			.locals 0;
+
+			.descriptor	Ljavacard/framework/APDU;	3.10;
+
+				L0:	getfield_a_this 23;		// reference CCCD/RSA.rsaSig
+					getfield_a_this 24;		// reference CCCD/RSA.rsaPrivKey
+					sconst_1;
+					invokevirtual 68;		// init(Ljavacard/security/Key;B)V
+					getfield_a_this 23;		// reference CCCD/RSA.rsaSig
+					getfield_a_this 20;		// reference CCCD/RSA.s1
+					sconst_0;
+					getfield_a_this 20;		// reference CCCD/RSA.s1
+					arraylength;
+					getfield_a_this 22;		// reference CCCD/RSA.sig_buffer
+					sconst_0;
+					invokevirtual 69;		// sign([BSS[BS)S
+					pop;
+					aload_1;
+					invokevirtual 70;		// setOutgoing()S
+					pop;
+					aload_1;
+					getfield_s_this 21;		// short CCCD/RSA.sigLen
+					invokevirtual 71;		// setOutgoingLength(S)V
+					aload_1;
+					getfield_a_this 22;		// reference CCCD/RSA.sig_buffer
+					sconst_0;
+					getfield_s_this 21;		// short CCCD/RSA.sigLen
+					invokevirtual 72;		// sendBytesLong([BSS)V
+					return;
+		}
+
+		.method private rsaVerify(Ljavacard/framework/APDU;)V {
+			.stack 7;
+			.locals 2;
+
+			.descriptor	Ljavacard/framework/APDU;	3.10;
+
+				L0:	aload_1;
+					invokevirtual 27;		// getBuffer()[B
+					astore_2;
+				L1:	getfield_a_this 23;		// reference CCCD/RSA.rsaSig
+					getfield_a_this 25;		// reference CCCD/RSA.rsaPubKey
+					sconst_2;
+					invokevirtual 68;		// init(Ljavacard/security/Key;B)V
+					getfield_a_this 23;		// reference CCCD/RSA.rsaSig
+					getfield_a_this 20;		// reference CCCD/RSA.s1
+					sconst_0;
+					getfield_a_this 20;		// reference CCCD/RSA.s1
+					arraylength;
+					getfield_a_this 22;		// reference CCCD/RSA.sig_buffer
+					sconst_0;
+					getfield_s_this 21;		// short CCCD/RSA.sigLen
+					invokevirtual 99;		// verify([BSS[BSS)Z
+					sstore_3;
+				L2:	aload_2;
+					sconst_0;
+					sload_3;
+					ifeq L4;
+				L3:	sconst_1;
+					goto L5;
+				L4:	sconst_0;
+				L5:	bastore;
+					aload_1;
+					sconst_0;
+					sconst_1;
+					invokevirtual 65;		// setOutgoingAndSend(SS)V
+					return;
+		}
+
+		.method private getPublicRSA(Ljavacard/framework/APDU;S)V {
+			.stack 3;
+			.locals 2;
+
+			.descriptor	Ljavacard/framework/APDU;	3.10;
+
+				L0:	getfield_a_this 25;		// reference CCCD/RSA.rsaPubKey
+					invokeinterface 1 58 3;		// javacard/security/RSAPublicKey
+					ifne L2;
+				L1:	sspush 27267;
+					invokestatic 28;		// javacard/framework/ISOException.throwIt(S)V
+				L2:	aload_1;
+					invokevirtual 27;		// getBuffer()[B
+					astore_3;
+				L3:	sconst_0;
+					sstore 4;
+				L4:	sload_2;
+					slookupswitch L7 2 0 L5 1 L6;
+				L5:	getfield_a_this 25;		// reference CCCD/RSA.rsaPubKey
+					aload_3;
+					sconst_0;
+					invokeinterface 3 58 5;		// javacard/security/RSAPublicKey
+					sstore 4;
+					goto L8;
+				L6:	getfield_a_this 25;		// reference CCCD/RSA.rsaPubKey
+					aload_3;
+					sconst_0;
+					invokeinterface 3 58 4;		// javacard/security/RSAPublicKey
+					sstore 4;
+					goto L8;
+				L7:	sspush 27270;
+					invokestatic 28;		// javacard/framework/ISOException.throwIt(S)V
+				L8:	aload_1;
+					sconst_0;
+					sload 4;
+					invokevirtual 65;		// setOutgoingAndSend(SS)V
 					return;
 		}
 
