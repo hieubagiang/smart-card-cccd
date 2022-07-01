@@ -121,7 +121,35 @@ public class AESUltils {
     }
     
     
-    
-    
-    
+    public void doEncryptAesCipher(byte[] arr,byte[] outBuffer) {
+        try {
+        	short len = (short) arr.length;
+            aesCipher = Cipher.getInstance(Cipher.ALG_AES_BLOCK_128_ECB_NOPAD, false);
+            tempAesKey1 = (AESKey) KeyBuilder.buildKey(KeyBuilder.TYPE_AES, KeyBuilder.LENGTH_AES_128, false);
+            if (len <= 0 || len % 16 != 0) {
+                ISOException.throwIt(ISO7816.SW_WRONG_LENGTH);
+               
+            }
+            tempAesKey1.setKey(aesKey, (short) 0);
+            aesCipher.init(tempAesKey1, Cipher.MODE_ENCRYPT);
+            aesCipher.doFinal(arr, (short) 0, len, outBuffer, (short) 0);
+
+        } catch (CryptoException e) {
+            short reason = e.getReason();
+            ISOException.throwIt(reason);
+        }
+    }
+    public void doDecryptAesCipher(byte[] encrypted,byte[] outBuffer) {
+        try {
+            aesCipher = Cipher.getInstance(Cipher.ALG_AES_BLOCK_128_ECB_NOPAD, false);
+            tempAesKey1 = (AESKey) KeyBuilder.buildKey(KeyBuilder.TYPE_AES, KeyBuilder.LENGTH_AES_128, false);
+            tempAesKey1.setKey(aesKey, (short) 0);
+            aesCipher.init(tempAesKey1, Cipher.MODE_DECRYPT);
+            aesCipher.doFinal(encrypted, (short) 0,(short) encrypted.length, outBuffer, (short) 0);
+
+        } catch (CryptoException e) {
+            short reason = e.getReason();
+            ISOException.throwIt(reason);
+        }
+    } 
 }

@@ -1,397 +1,325 @@
 package CCCD;
-
 import javacard.framework.*;
+import javacard.framework.OwnerPIN;
 import javacard.security.KeyBuilder;
-import javacard.security.KeyPair;
-import javacard.security.MessageDigest;
-import javacard.security.RSAPrivateCrtKey;
-import javacard.security.RSAPublicKey;
 import javacard.security.RandomData;
-import javacardx.apdu.ExtendedLength;
 import javacardx.crypto.Cipher;
+import javacard.security.AESKey;
+import javacard.security.Key;
+import javacard.security.KeyAgreement;
+import javacard.security.KeyPair;
+import javacard.security.RSAPrivateCrtKey;
+import javacard.security.RSAPrivateKey;
+import javacard.security.RSAPublicKey;
+import javacardx.apdu.ExtendedLength;
 import javacard.security.*;
 import javacardx.crypto.*;
 
-public class CCCD extends Applet implements ExtendedLength{
-
-    // all data in card
+public class CCCD extends Applet implements ExtendedLength
+{
     private byte[] encryptedData;
-    private static short dataLength;
-    // String data mã hóa.
-    final static byte Wallet_CLA = (byte) 0xB0;
-    // codes of INS byte in the command APDU header
-    private static final byte VERIFY = (byte) 0x20;
-    private static final byte REGIST_CARD = (byte) 0x50;
-    private static final byte UNBLOCK = (byte) 0x60;
-    private static final byte CHANGE_PASS = (byte) 0x70;
-    private static final byte GEN_RSA_KEY = (byte) 0xD3;
-    private static final byte SIGN_RSA = (byte) 0xD0;
-    private static final byte EXPORT_RSA_EXPONENT_KEY = (byte) 0xF2;
-    private static final byte EXPORT_RSA_MODULUS_KEY = (byte) 0xF0;
-    private static final byte INS_get = (byte) 0x14;
-    private static final short MAX_LEN_OUT_GOING = 200;
-    
+	
+	final static byte marker =(byte)0x2c;
+	
+	public static byte isNewUser;
+
+	final static byte APP_CLA =(byte)0x00;
+	final static byte INIT_DATA = (byte) 0x01;
+	final static byte GET_INFO = (byte) 0x02;
+	final static byte IS_INIT_DATA = (byte) 0x03;
+	final static byte VERIFY =(byte)0x11;
+	final static byte CREATE_PIN =(byte)0x10;
+    final static byte UNLOCK_USER = (byte) 0x12;
+	final static byte PASSWORD_TRY_LIMIT =(byte)0x03;
+	
+	
+	final static byte GET_EXPORT_PUBLIC_MODUL = (byte)0x20;
+	final static byte GET_EXPORT_PUBLIC_EXPONENT = (byte)0x21;
+	private static final byte INS_SIGN = (byte)0x22	;
+
+	final static byte MAX_PASS_SIZE =(byte)0x08;
+	   // signal that the PIN verification failed
+    final static short SW_VERIFICATION_FAILED = 	0x6300;
+    final static short SW_CARD_IS_BLOCKED = 0x6302;
+    final static short SW_PIN_VERIFICATION_REQUIRED = 0x6301;
+	/* instance variables declaration */
+	static OwnerPIN pin;
+	private MessageDigest sha;
+	private static Cipher aesCipher;
+	private static AESKey aesKey;
 	private RSAPrivateKey rsaPrivKey;
 	private RSAPublicKey rsaPubKey;
 	private Signature rsaSig;
-	private byte[] s1, sig_buffer;
 	private short sigLen;
-
-    
-    //mng  send ra apdu các offset logic
-    private final static byte[] offSetLogic = {(byte) 0x3A, (byte) 0x00, (byte) 0x01};
-    //mng tm, các mng lu gi khóa
-
-    // maximum balance
-    final static short MAX_BALANCE = 0x7FFF;
-
-    // maximum transaction amount 
-    final static short MAX_TRANSACTION_AMOUNT = 0xFF;
-
-    // maximum number of incorrect tries before the
-    // PIN is blocked
-    final static byte PIN_TRY_LIMIT = (byte) 0x03;
-
-    // maximum size PIN
-    final static byte MAX_PIN_SIZE = (byte) 0x08;
-
-    // signal that the PIN verification failed
-    final static short SW_VERIFICATION_FAILED = 0x6312;
-
-    // signal the PIN validation is required
-    // for a credit or a debit transaction
-    final static short SW_PIN_VERIFICATION_REQUIRED = 0x6311;
-
-    // signal invalid transaction amount
-    // amount > MAX_TRANSACTION_MAOUNT or amount < 0
-    final static short SW_INVALID_TRANSACTION_AMOUNT = 0x6A83;
-
-    // signal that the balance exceed the maximum
-    final static short SW_EXCEED_MAXIMUM_BALANCE = 0x6A84;
-
-    // signal the balance becomes negative
-    final static short SW_NEGATIVE_BALANCE = 0x6A85;
-    
-    private static final byte INS_GET_CARD_DATA = (byte) 0x13;
- 
-    /* instance variables declaration */
-    OwnerPIN initPin;
-    AESUltils _aesUtils;
-    short balance;
-    
-    private static byte[] userData;
-    
-    // RSA
-    // use unpadded RSA cipher for signing (so be careful with what you do!)
-    Cipher cipherRSA = Cipher.getInstance(Cipher.ALG_RSA_NOPAD, false);
-    // an RSA-2048 keypair
-    KeyPair rsaPair = new KeyPair(KeyPair.ALG_RSA_CRT, KeyBuilder.LENGTH_RSA_2048);
-    RSAPrivateCrtKey rsaKeyPriv;
-    RSAPublicKey rsaKeyPub;
-    RandomData rng;
-    // 256 byte buffer for producing signatures
-    byte[] hashBuffer = JCSystem.makeTransientByteArray((short)256, JCSystem.CLEAR_ON_DESELECT);
-    // 256 byte buffer to hold the incoming data (which will be hashed)
-    byte[] dataBuffer = JCSystem.makeTransientByteArray((short)256, JCSystem.CLEAR_ON_DESELECT);
-    // the DER prefix for a SHA256 hash in a PKCS#1 1.5 signature
-    private static final byte[] SHA256_PREFIX = {
-        (byte) 0x30, (byte) 0x31, (byte) 0x30, (byte) 0x0d,
-        (byte) 0x06, (byte) 0x09, (byte) 0x60, (byte) 0x86,
-        (byte) 0x48, (byte) 0x01, (byte) 0x65, (byte) 0x03,
-        (byte) 0x04, (byte) 0x02, (byte) 0x01, (byte) 0x05,
-        (byte) 0x00, (byte) 0x04, (byte) 0x20
-    };
-    // support for SHA256
-    MessageDigest md = MessageDigest.getInstance(MessageDigest.ALG_SHA_256, false);
-    
-    public static void install(byte[] bArray, short bOffset, byte bLength) {
-        new CCCD(bArray, (short) (bOffset + 1),bArray[bOffset]);
-
-    }
-
-    /**
-     * Only this class's install method should create the applet object.
-     */
-    protected CCCD(byte[] bArray, short bOffset, byte bLength) {
-        // It is good programming practice to allocate
+	private byte[] s1, s2, s3, sig_buffer;
+	private final static byte[] PIN_INIT_VALUE={(byte)'1',(byte)'2',(byte)'3',(byte)'4'};
+	private static short LENGTH_BLOCK_AES = (short)64;
+	private static boolean isCreateProfile = false;
+	private static AESUltils aesUtils;
+	private CCCD(byte[] bArray, short bOffset, byte bLength) {
+		  // It is good programming practice to allocate
         // all the memory that an applet needs during
         // its lifetime inside the constructor
- 
-        initPin = new OwnerPIN(PIN_TRY_LIMIT, MAX_PIN_SIZE);
-       
-
-        // The installation parameters contain the PIN
-        // initializationvalue 
-        byte[] pinArr = {1, 2, 3, 4};
-        initPin.update(pinArr, (short) 0, (byte) pinArr.length);
+        pin = new OwnerPIN(PASSWORD_TRY_LIMIT,(byte)MAX_PASS_SIZE);
         
+        byte iLen = bArray[bOffset]; // aid length
+        bOffset = (short) (bOffset+iLen+1);
+        byte cLen = bArray[bOffset]; // info length
+        bOffset = (short) (bOffset+cLen+1);
+        byte aLen = bArray[bOffset]; // applet data length
+		// init cipher
+		byte [] tmpBuffer;
+		try {
+			tmpBuffer = JCSystem.makeTransientByteArray((short) 256, JCSystem.CLEAR_ON_DESELECT);
+		} catch (SystemException e) {
+			tmpBuffer = new byte[(short) 256];
+		}
+
 		sigLen = (short)(KeyBuilder.LENGTH_RSA_1024/8);
-		sig_buffer = new byte[sigLen];
-        register();
-		 _aesUtils = new AESUltils();
-		initRsa();
-        JCSystem.requestObjectDeletion();
-    }
-
-    public boolean select() {
-        // The applet declines to be selected
-        // if the pin is blocked.
-        if (initPin.getTriesRemaining() == 0) {
-            return false;
-        }
-        return true;
-    }// end of select method
-
-    public void deselect() {
-        // reset the pin value
-        initPin.reset();
-    }
-
-    public void process(APDU apdu) {
-        // APDU object carries a byte array (buffer) to
-        // transfer incoming and outgoing APDU header
-        // and data bytes between card and CAD
-        // At this point, only the first header bytes
-        // [CLA, INS, P1, P2, P3] are available in
-        // the APDU buffer.
-        // The interface javacard.framework.ISO7816
-        // declares constants to denote the offset of
-        // these bytes in the APDU buffer
-        byte[] buffer = apdu.getBuffer();
-        // check SELECT APDU command
-        if ((buffer[ISO7816.OFFSET_CLA] == 0)
-                && (buffer[ISO7816.OFFSET_INS] == (byte) (0xA4))) {
-            return;
-        }
-
-        // verify the reset of commands have the
-        // correct CLA byte, which specifies the
-        // command structure
-        if (buffer[ISO7816.OFFSET_CLA] != Wallet_CLA) {
-            ISOException.throwIt(ISO7816.SW_CLA_NOT_SUPPORTED);
-        }
-        
-        switch (buffer[ISO7816.OFFSET_INS]) {
-            case REGIST_CARD:
-                initCard(apdu);
-                break;
-            case INS_GET_CARD_DATA:
-                getCardInfo(apdu);
-                break;
-            case VERIFY:
-                verify(apdu);
-                return;
-            case UNBLOCK:
-                initPin.resetAndUnblock();
-                return;
-            case CHANGE_PASS:
-                changePass(apdu);
-                return; 
-              case (byte)GEN_RSA_KEY:
-                // generate a new key
-                gen_rsa_key();
-                break;
-            case (byte)SIGN_RSA:
-                // sign a given incoming message
-                sign_message(apdu);
-                break;
-            case (byte)EXPORT_RSA_MODULUS_KEY:
-                // retrieve the modulus public key from the card
-                getPublicRSA(apdu, (short)0x00);
-                break;
-            case (byte)EXPORT_RSA_EXPONENT_KEY:
-                // retrieve the exponent public key from the card
-                getPublicRSA(apdu, (short)0x01);
-                break;      
-
-            default:
-                ISOException.throwIt(ISO7816.SW_INS_NOT_SUPPORTED);
-        }
-    } // end of process method
-
-	 public void gen_rsa_key(){
-
-        rsaPair.genKeyPair();
-        rsaKeyPriv = (RSAPrivateCrtKey) rsaPair.getPrivate();
-        rsaKeyPub = (RSAPublicKey) rsaPair.getPublic();
-        return;
-    }
-	void initRsa(){
-		sigLen = (short)(KeyBuilder.LENGTH_RSA_2048/8);
 		sig_buffer = new byte[sigLen];
 		rsaSig = Signature.getInstance(Signature.ALG_RSA_SHA_PKCS1,false);
 		rsaPrivKey =(RSAPrivateKey)KeyBuilder.buildKey(KeyBuilder.TYPE_RSA_PRIVATE,(short)(8*sigLen),false);
-		rsaPubKey =(RSAPublicKey)KeyBuilder.buildKey(KeyBuilder.TYPE_RSA_PUBLIC,(short)(8*sigLen), false);
+		rsaPubKey = (RSAPublicKey)KeyBuilder.buildKey(KeyBuilder.TYPE_RSA_PUBLIC,(short)(8*sigLen), false);
+
 		KeyPair keyPair = new KeyPair(KeyPair.ALG_RSA,(short)(8*sigLen));
 		keyPair.genKeyPair();
 		rsaPrivKey = (RSAPrivateKey)keyPair.getPrivate();
 		rsaPubKey = (RSAPublicKey)keyPair.getPublic();
+		sha = MessageDigest.getInstance(MessageDigest.ALG_MD5,false);
+		aesCipher = Cipher.getInstance(Cipher.ALG_AES_BLOCK_128_CBC_NOPAD, false);
+        aesKey = (AESKey) KeyBuilder.buildKey(KeyBuilder.TYPE_AES, KeyBuilder.LENGTH_AES_128, false);
+        // Sha512.init();
+		// HMacSHA512.init(tmpBuffer);
+        byte[] keyBytes = JCSystem.makeTransientByteArray(LENGTH_BLOCK_AES, JCSystem.CLEAR_ON_DESELECT);
+        try {
+        	short shalen = sha.doFinal(PIN_INIT_VALUE, (short)0,(short)PIN_INIT_VALUE.length, keyBytes, (short)0);
+            // HMacSHA512.computeHmacSha512(PIN_INIT_VALUE,(short)0x00,(short)PIN_INIT_VALUE.length,keyBytes,(short)0);
+            aesKey.setKey(keyBytes, (short) 0);
+        } finally {
+            Util.arrayFillNonAtomic(keyBytes, (short) 0, LENGTH_BLOCK_AES, (byte) 0);
+        }
+        // The installation parameters contain the PIN
+        // initialization value
+       aesUtils = new AESUltils();
+
+		isNewUser= (byte)'1';
+		pin.update(PIN_INIT_VALUE, (short) 0, (byte)PIN_INIT_VALUE.length);
+        register();
 	}
-
-    private void getPublicRSA(APDU apdu, short choose){
-
-        if (!rsaKeyPub.isInitialized())
-        {
-                ISOException.throwIt(ISO7816.SW_RECORD_NOT_FOUND);
-        }
-
-        byte[] buffer = apdu.getBuffer();
-        short length = 0;
-
-        switch ((short) choose)
-        {
-        case 0x00:
-                length = rsaKeyPub.getModulus(buffer, (short)0);
-                break;
-        case 0x01:
-                length = rsaKeyPub.getExponent(buffer, (short)0);
-                break;
-        default:
-
-                ISOException.throwIt(ISO7816.SW_INCORRECT_P1P2);
-        }
-        apdu.setOutgoingAndSend((short)0, length);
-        return;
-    }
-
-    public void sign_message(APDU apdu){
-        if (!rsaKeyPriv.isInitialized()){
-            // RSA key isn't initialised for some reason... this is not OK
-            ISOException.throwIt(ISO7816.SW_CONDITIONS_NOT_SATISFIED);
-        }
-        // prepare for signing
-        // signing being decryption using RSA (be careful here, ensure you understand PKCS#1.5 and don't sign "raw" data!)
-        cipherRSA.init(rsaKeyPriv, Signature.MODE_SIGN);
-        
-        // get buffer access to APDU
-        byte[] buffer = apdu.getBuffer();
-        short bytesRead = apdu.setIncomingAndReceive();
-        // don't allow excessively long data to be signed, at least for now
-        if (bytesRead > 256)
-        {
-            ISOException.throwIt(ISO7816.SW_WRONG_LENGTH);
-        }
-        // fetch the message to be signed into a temporary buffer
-        Util.arrayCopyNonAtomic(buffer, ISO7816.OFFSET_CDATA, dataBuffer, (short)0, bytesRead);
-        // pkcs1_sha256() will hash the input message of upto 255 bytes, and return a PKCS#1.5 digest to be signed
-        pkcs1_sha256(dataBuffer, (short)0, bytesRead, hashBuffer);
-        // this has sets the hashBuffer as the data to sign
-
-        // sign the contents of temporary buffer, send signature to APDU output buffer
-
-
-		rsaSig.init(rsaPrivKey, Signature.MODE_SIGN);
-		rsaSig.sign(hashBuffer, (short)0, (short)(hashBuffer.length),sig_buffer, (short)0);
-		
-		apdu.setOutgoing();
-		apdu.setOutgoingLength(sigLen);
-		apdu.sendBytesLong(sig_buffer, (short)0, sigLen);
-        // clear the temp buffer
-        Util.arrayFillNonAtomic(hashBuffer, (short)0, (short)256, (byte)0x00);
-        // clear the data buffer
-        Util.arrayFillNonAtomic(dataBuffer, (short)0, (short)256, (byte)0x00);
-        
-        Util.arrayFillNonAtomic(sig_buffer, (short)0, (short)sigLen, (byte)0x00);
-        // return the signature
-
-		 return;
-}
-    
-    // this function will leave hashBuffer with the data to be signed
-    public void pkcs1_sha256(byte[] plainText, short bOffset, short bLength,byte[] hashBuffer){
-        // clear the hasher
-        md.reset();
-
-        // clear the temp buffer
-        Util.arrayFillNonAtomic(hashBuffer, (short)0, (short)256, (byte)0x00);
-        // the format of a pkcs1#1.5 digest before signing is as follows:
-        // (note that this is pre-computed for a sha256 hash length)
-
-        // 2 bytes, 0x00, 0x01
-        // padding (202 bytes of 0xFF)
-        // byte 0x00
-        // hash-type prefix is 19 bytes
-        // hash is 32 bytes
-
-        // therefore the padding contains 256-32-19-3 = 202 bytes
-        hashBuffer[0] = (byte) 0x00;
-        hashBuffer[1] = (byte) 0x01;
-        // add in the padding
-        Util.arrayFillNonAtomic(hashBuffer, (short)2, (short)202, (byte)0xFF);
-        hashBuffer[204] = (byte) 0x00;
-        // copy the DER prefix
-        Util.arrayCopyNonAtomic(SHA256_PREFIX, (short)0, hashBuffer, (short)205, (short)SHA256_PREFIX.length);
-        // now add the actual hash
-        md.doFinal(plainText, bOffset, bLength, hashBuffer, (short)224);
-        // the value to sign is in tempBuffer
-    }
-
-    
-    private void changePass(APDU apdu){        
-        if (!initPin.isValidated()) {
-            ISOException.throwIt(SW_PIN_VERIFICATION_REQUIRED);
-        }
-        
-        byte[] buffer = apdu.getBuffer();
-        apdu.setIncomingAndReceive();
-        short dataLen = (short)(buffer[ISO7816.OFFSET_LC]&0xff);
-        
-		byte[] pinArr =  new byte[dataLen];
-
-        Util.arrayCopy(buffer, ISO7816.OFFSET_CDATA, pinArr, (short)0, dataLen);
-        
-        // Util.arrayCopy(pinArr, (short)0, buffer, (short)0, dataLen);
-		// apdu.setOutgoingAndSend((short)0, (short)dataLen);
-        initPin.update(pinArr, (short) 0, (byte) pinArr.length);
+	
+	 public boolean select() {
+        return true;
     }
     
-   
-    private void verify(APDU apdu) {
-        byte[] buffer = apdu.getBuffer();
-        // retrieve the PIN data for validation.
-        byte byteRead = (byte) (apdu.setIncomingAndReceive());
-
-        // check pin
-        // the PIN data is read into the APDU buffer
-        // at the offset ISO7816.OFFSET_CDATA
-        // the PIN data length = byteRead
-        if (initPin.check(buffer, ISO7816.OFFSET_CDATA, byteRead) == false) {
-
-            ISOException.throwIt(SW_VERIFICATION_FAILED);
-        }
-    } // end of validate method
-
-    private void initCard(APDU apdu) {
-        byte[] buffer = apdu.getBuffer();
-
-        short recvLen = apdu.setIncomingAndReceive(); // mot lan doc
-        short dataLen = apdu.getIncomingLength();//(short)(buffer[ISO7816.OFFSET_LC]&0xff); toan bo
-        short dataOffset = apdu.getOffsetCdata();
-
-        encryptedData = new byte[dataLen];
+     public void deselect() {
+        // reset the pin value
+        pin.reset();
         
-		
-		
-        short pointer = 0;	
-        while (recvLen > 0) {
-            Util.arrayCopy(buffer, apdu.getOffsetCdata(), encryptedData, pointer, recvLen);
-            pointer += recvLen;
-            recvLen = apdu.receiveBytes(dataOffset);
-        }
-        encryptedData= _aesUtils.paddingArray(encryptedData, dataLen);
-		_aesUtils.doEncryptAesCipher(apdu, encryptedData);
-        // Util.arrayCopy(encryptedData, (short)0, buffer, (short)0, (short)encryptedData.length);
-		// apdu.setOutgoingAndSend((short)0, (short)encryptedData.length);
-		
-		
     }
 	
-    private void getCardInfo(APDU apdu) {
-        short toSend = (short) encryptedData.length;
+	public static void install(byte[] bArray, short bOffset, byte bLength) 
+	{
+		new CCCD(bArray, bOffset, bLength);
+	}
+
+	public void process(APDU apdu)
+	{
+		if (selectingApplet())
+		{
+			return;
+		}
+
+		byte[] buf = apdu.getBuffer();
+		short byteRead = (short)(apdu.setIncomingAndReceive());
+		short dataLen = (short)(buf[ISO7816.OFFSET_LC]&0xff);
+		
+		// if ( pin.getTriesRemaining() == 0 ) 
+			// ISOException.throwIt(SW_CARD_IS_BLOCKED);
+		
+		if (buf[ISO7816.OFFSET_CLA] != APP_CLA)
+			 ISOException.throwIt(ISO7816.SW_CLA_NOT_SUPPORTED);
+		
+		switch (buf[ISO7816.OFFSET_INS])
+		{
+		case (byte) CREATE_PIN:
+			createPin(apdu,buf);
+			break;
+		
+		case (byte) INIT_DATA:
+			initInformation(apdu,buf,byteRead);
+			break;
+		case (byte) GET_INFO:
+			 showInformation(apdu);
+			break;
+		case (byte) VERIFY:
+			verify(apdu,buf,(byte)byteRead);
+			break;
+		case (byte)UNLOCK_USER: pin.resetAndUnblock();
+			return;
+		case (byte) INS_SIGN:
+			rsaSign(apdu,buf);
+			break;
+		case (byte) GET_EXPORT_PUBLIC_MODUL:
+			exportPublicModulus(apdu);
+			break;
+		case (byte) GET_EXPORT_PUBLIC_EXPONENT:
+			exportPublicExponent(apdu);
+			break;
+		case (byte) IS_INIT_DATA:
+			checkInitData(apdu);
+			break;
+		default:
+			ISOException.throwIt(ISO7816.SW_INS_NOT_SUPPORTED);
+		}
+	}
+	
+	public void initInformation(APDU apdu,byte[] buf,short recvLen) {
+		if (!pin.isValidated()) {
+            ISOException.throwIt(SW_PIN_VERIFICATION_REQUIRED);
+        }
+		JCSystem.beginTransaction();
+		short pointer = 0;
+		short dataOffset = apdu.getOffsetCdata();
+		short datalength = apdu.getIncomingLength();
+		encryptedData=new byte[datalength];
+        short dataOffsetInput = 0;
+		while (recvLen > 0)
+		{
+			Util.arrayCopy(buf, dataOffset, encryptedData, pointer,recvLen);
+			pointer += recvLen;
+			recvLen = apdu.receiveBytes(dataOffset);
+		}
+		//
+		short lenExponent  = rsaPubKey.getModulus(buf, (short) 0);
+		isCreateProfile=true;
+		apdu.setOutgoingAndSend((short)0, lenExponent);
+        encryptedData= aesUtils.paddingArray(encryptedData, datalength);
+		aesUtils.doEncryptAesCipher(apdu, encryptedData);
+		JCSystem.commitTransaction();	
+	}
+
+	private void checkInitData(APDU apdu) {
+		byte buffer[] = apdu.getBuffer();
+		buffer[0] = isCreateProfile? (byte) 1: (byte) 0;
+		apdu.setOutgoingAndSend((short) 0, (short) (1));
+		
+	}
+	
+	
+	public void showInformation(APDU apdu) {
+		if (!pin.isValidated()) {
+            ISOException.throwIt(SW_PIN_VERIFICATION_REQUIRED);
+        }
+                // byte[] decryptedData= aesUtils.paddingArray(encryptedData, datalength);
+		// aesUtils.doEncryptAesCipher(apdu, encryptedData);
+
+		        sendLongApdu(apdu,encryptedData);
+	}
+	
+	public void createPin(APDU apdu,byte[] buf) {
+		// if(!pin.isValidated()) {
+			 // ISOException.throwIt(SW_PIN_VERIFICATION_REQUIRED);
+			 // return;
+		 // }
+		JCSystem.beginTransaction();
+
+		// byte[] decryptAvatar = decrypt(avatar,avatarLength);
+		short dataOffset = apdu.getOffsetCdata();
+		short datalength = apdu.getIncomingLength();
+		byte[] newPin = new byte[datalength];
+		Util.arrayCopy(buf,dataOffset,newPin,(short)0,(short)datalength);
+		byte[] keyBytes1;
+		try {
+			keyBytes1 = JCSystem.makeTransientByteArray((short) LENGTH_BLOCK_AES, JCSystem.CLEAR_ON_DESELECT);
+		} catch (SystemException e) {
+			keyBytes1 = new byte[(short)LENGTH_BLOCK_AES];
+		}
+		
+        try {
+            // HMacSHA512.computeHmacSha512(newPin,(short)0x00,(short)newPin.length,keyBytes,(short)0);
+            short shalen = sha.doFinal(newPin, (short)0,(short)newPin.length, keyBytes1, (short)0);
+            aesKey.setKey(keyBytes1, (short) 0);
+        } finally {
+            Util.arrayFillNonAtomic(keyBytes1, (short) 0, LENGTH_BLOCK_AES, (byte) 0);
+        }
+        pin.update(newPin,(short)0,(byte)newPin.length);
+		//
+		//
+		byte[] dataEncrypt;
+	
+		isNewUser= (byte)'0';
+		pin.check(newPin,(short)0,(byte)newPin.length);
+		JCSystem.commitTransaction();
+	}
+	
+	public void resetPin(APDU apdu) {
+		if (!pin.isValidated()) {
+            ISOException.throwIt(SW_PIN_VERIFICATION_REQUIRED);
+        }
+		JCSystem.beginTransaction();
+		// byte[] decryptUserId = decrypt(userId,userIdLength);
+		
+		short dataOffset = apdu.getOffsetCdata();
+		short datalength = apdu.getIncomingLength();
+		short numberEncrypt = 0;
+		byte[] newPin = new byte[(short)PIN_INIT_VALUE.length];
+	}
+	
+    private static byte[] decrypt(byte[] decryptData, short length) {
+    	return decryptData;
+    }
+    
+    private void rsaSign(APDU apdu,byte[] buf)
+	{
+		short dataOffset = apdu.getOffsetCdata();
+		short datalength = apdu.getIncomingLength();
+		rsaSig.init(rsaPrivKey, Signature.MODE_SIGN);
+		rsaSig.sign(buf, dataOffset, (short)(datalength),sig_buffer, (short)0);
+		apdu.setOutgoing();
+		apdu.setOutgoingLength(sigLen);
+
+		apdu.sendBytesLong(sig_buffer, (short)0, sigLen);
+	}
+	
+	
+	private void exportPublicModulus(APDU apdu) {
+		byte buffer[] = apdu.getBuffer();
+		short expLenmo = rsaPubKey.getModulus(buffer, (short) 0);
+		apdu.setOutgoingAndSend((short) 0, (short) (expLenmo));
+	}
+	
+	private void exportPublicExponent(APDU apdu) {
+		byte buffer[] = apdu.getBuffer();
+		short expLenex = rsaPubKey.getExponent(buffer, (short) 0);
+		apdu.setOutgoingAndSend((short) 0, (short) expLenex);
+	}
+	
+	private void verify(APDU apdu,byte[] buf,byte length) {
+		if ( pin.check(buf, ISO7816.OFFSET_CDATA,length) == false ) {
+			byte[] count = new byte[1];
+			byte remaining = pin.getTriesRemaining();
+			count[0]= remaining;
+			
+			short le = apdu.setOutgoing();
+			apdu.setOutgoingLength((short)1);
+			apdu.sendBytesLong(count, (short)0, (short)1);
+			ISOException.throwIt(SW_VERIFICATION_FAILED);
+		}
+
+			byte[] status = new byte[1];
+			status[0] = 0x01;
+			short le = apdu.setOutgoing();
+			apdu.setOutgoingLength((short)1);
+			apdu.sendBytesLong(status, (short)0, (short)1);
+	}
+	public void sendLongApdu(APDU apdu,byte[] data){
+	            short toSend = (short) data.length;
 
         apdu.setOutgoing();
         apdu.setOutgoingLength(toSend);
-        apdu.sendBytesLong(encryptedData, (short)0, toSend);
+        apdu.sendBytesLong(data, (short)0, toSend);
     }
 }
- 
+
+
+
